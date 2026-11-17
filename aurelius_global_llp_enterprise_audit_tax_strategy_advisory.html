@@ -1,0 +1,3012 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AURELIUS | Aurelius Global LLP — Audit, Tax & Strategy Advisory</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Supabase JS Client v2 (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Google Fonts: Newsreader (Editorial Serif), Plus Jakarta Sans (Architectural UI), JetBrains Mono (Audit Data) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+            serif: ['Newsreader', 'Georgia', 'serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            obsidian: '#06152D',
+            midnight: '#0B2244',
+            alabaster: '#FAFBFD',
+            sovereign: '#B45309',
+            sovereignBright: '#D97706',
+            cobalt: '#1D4ED8',
+            hairline: '#E2E8F0',
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #FAFBFD;
+      color: #0F172A;
+      overflow-x: hidden;
+    }
+    .font-editorial {
+      font-family: 'Newsreader', Georgia, serif;
+    }
+    .font-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+    }
+    /* Crisp architectural scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #F1F5F9; }
+    ::-webkit-scrollbar-thumb { background: #94A3B8; }
+    ::-webkit-scrollbar-thumb:hover { background: #06152D; }
+
+    /* Architectural card hover */
+    .arch-card {
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+    }
+    .arch-card:hover {
+      border-color: #06152D;
+      box-shadow: 0 14px 30px -10px rgba(6, 21, 45, 0.12);
+    }
+
+    /* Subtle architectural blueprint grid */
+    .blueprint-bg {
+      background-image:
+        linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+
+    @media print {
+      body * { visibility: hidden; }
+      #printSurface, #printSurface * { visibility: visible; }
+      #printSurface {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background: #FFFFFF !important;
+        color: #000000 !important;
+      }
+    }
+  </style>
+</head>
+<body class="antialiased selection:bg-obsidian selection:text-white">
+
+  <!-- Hidden Universal File Input for Real Binary Working Paper & CSV Uploads -->
+  <input type="file" id="binaryFilePicker" class="hidden" accept=".pdf,.csv,.xlsx,.xls,.docx,.doc,.txt,.json,.png,.jpg" onchange="handleBinaryFileSelected(event)" />
+
+  <!-- Toast Notification Stack -->
+  <div id="toastStack" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- ==================== 1. TOP INSTITUTIONAL TICKER & CLOUD STATUS BAR ==================== -->
+  <div class="bg-obsidian text-white text-xs border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-10 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3 overflow-hidden">
+        <span class="inline-flex items-center gap-1.5 font-num text-[11px] font-semibold tracking-wider text-amber-400 uppercase shrink-0">
+          <span class="w-1.5 h-1.5 bg-amber-400 inline-block"></span>
+          ISQM 1 • IAASB • PCAOB • IFRS • IND AS
+        </span>
+        <span class="hidden lg:inline text-white/25">|</span>
+        <span class="hidden lg:inline text-slate-300 truncate">Independent Statutory Assurance, International Tax &amp; Algorithmic Governance</span>
+      </div>
+
+      <div class="flex items-center gap-3 sm:gap-4 shrink-0">
+        <!-- Live Supabase Cloud Connection Status Pill -->
+        <button onclick="openCloudDrawer('config')" id="topCloudStatusBtn" class="inline-flex items-center gap-2 px-2.5 py-1 border border-white/20 bg-white/5 hover:bg-white/15 transition text-[11px] font-num">
+          <span id="topCloudDot" class="w-2 h-2 rounded-full bg-amber-400"></span>
+          <span id="topCloudLabel">Local Vault (Connect Cloud)</span>
+        </button>
+
+        <!-- Currency Switcher -->
+        <div class="flex items-center gap-1.5">
+          <label for="currencySelect" class="sr-only">Currency</label>
+          <select id="currencySelect" onchange="switchCurrency(this.value)" class="bg-transparent text-white font-num font-bold text-xs border-b border-white/30 pb-0.5 focus:outline-none cursor-pointer">
+            <option value="USD" class="bg-obsidian text-white" selected>USD ($)</option>
+            <option value="INR" class="bg-obsidian text-white">INR (₹)</option>
+            <option value="EUR" class="bg-obsidian text-white">EUR (€)</option>
+          </select>
+        </div>
+
+        <!-- Global Command Search -->
+        <button onclick="openSearchModal()" class="hidden sm:inline-flex items-center gap-1.5 text-slate-300 hover:text-white transition text-xs" title="Global Command Search">
+          <i class="fa-solid fa-magnifying-glass text-[11px] text-amber-400"></i>
+          <kbd class="font-num text-[10px] border border-white/25 px-1.5 py-0.2">⌘K</kbd>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 2. ARCHITECTURAL STICKY HEADER & MEGA-MENUS ==================== -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-xs border-b border-hairline">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <!-- Bespoke Architectural SVG Emblem -->
+      <a href="#top" class="flex items-center gap-3.5 group">
+        <svg class="w-10 h-10 shrink-0" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect width="40" height="40" fill="#06152D" />
+          <path d="M20 7L31 32H26.4L24.1 26.5H15.9L13.6 32H9L20 7Z" fill="#FAFBFD" />
+          <polygon points="20,14.5 22.6,21.5 17.4,21.5" fill="#D97706" />
+          <rect x="7" y="34.5" width="26" height="1.5" fill="#D97706" />
+        </svg>
+        <div>
+          <span class="block text-xl font-extrabold tracking-[0.14em] text-obsidian leading-none">AURELIUS</span>
+          <span class="block text-[10px] font-num font-semibold tracking-[0.22em] text-slate-500 uppercase mt-1">Global LLP • Audit &amp; Advisory</span>
+        </div>
+      </a>
+
+      <!-- Desktop Navigation with Mega-Menus -->
+      <nav class="hidden lg:flex items-center h-full space-x-8">
+        <!-- Practices Mega-Menu -->
+        <div class="relative group h-full flex items-center">
+          <a href="#practices" class="h-full flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-slate-800 hover:text-obsidian border-b-2 border-transparent group-hover:border-sovereignBright transition">
+            <span>Practices</span>
+            <i class="fa-solid fa-chevron-down text-[9px] text-slate-400"></i>
+          </a>
+          <div class="invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-150 absolute top-20 left-0 w-[680px] bg-white border border-slate-300 shadow-2xl p-6 grid grid-cols-3 gap-6 z-50">
+            <div>
+              <p class="font-num text-[11px] font-bold uppercase tracking-wider text-obsidian border-b border-slate-200 pb-2 mb-3">01 / Audit &amp; Assurance</p>
+              <ul class="space-y-2 text-xs text-slate-700">
+                <li><button onclick="jumpToPractice('audit', 'srv-stat')" class="hover:text-sovereign text-left font-medium">Statutory Financial Audit</button></li>
+                <li><button onclick="jumpToPractice('audit', 'srv-sox')" class="hover:text-sovereign text-left font-medium">SOX 404 &amp; Internal Controls</button></li>
+                <li><button onclick="jumpToPractice('audit', 'srv-esg')" class="hover:text-sovereign text-left font-medium">ESG &amp; ISSA 5000 Assurance</button></li>
+              </ul>
+            </div>
+            <div>
+              <p class="font-num text-[11px] font-bold uppercase tracking-wider text-obsidian border-b border-slate-200 pb-2 mb-3">02 / Tax &amp; Legal</p>
+              <ul class="space-y-2 text-xs text-slate-700">
+                <li><button onclick="jumpToPractice('tax', 'srv-tp')" class="hover:text-sovereign text-left font-medium">Transfer Pricing &amp; BEPS 2.0</button></li>
+                <li><button onclick="jumpToPractice('tax', 'srv-gst')" class="hover:text-sovereign text-left font-medium">Indirect Tax, GST &amp; VAT</button></li>
+                <li><button onclick="jumpToPractice('tax', 'srv-ma')" class="hover:text-sovereign text-left font-medium">Cross-Border M&amp;A Structuring</button></li>
+              </ul>
+            </div>
+            <div>
+              <p class="font-num text-[11px] font-bold uppercase tracking-wider text-sovereign border-b border-slate-200 pb-2 mb-3">03 / Strategy &amp; Risk</p>
+              <ul class="space-y-2 text-xs text-slate-700">
+                <li><button onclick="jumpToPractice('advisory', 'srv-ai')" class="hover:text-sovereign text-left font-medium">AI Governance &amp; ISO 42001</button></li>
+                <li><button onclick="jumpToPractice('advisory', 'srv-forensic')" class="hover:text-sovereign text-left font-medium">Forensic CAATs &amp; Disputes</button></li>
+                <li><button onclick="jumpToPractice('advisory', 'srv-deal')" class="hover:text-sovereign text-left font-medium">Quality of Earnings &amp; Valuation</button></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sectors Mega-Menu -->
+        <div class="relative group h-full flex items-center">
+          <a href="#assurance-engine" class="h-full flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-slate-800 hover:text-obsidian border-b-2 border-transparent group-hover:border-sovereignBright transition">
+            <span>Client Engagements</span>
+            <i class="fa-solid fa-chevron-down text-[9px] text-slate-400"></i>
+          </a>
+          <div class="invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-150 absolute top-20 left-0 w-[560px] bg-white border border-slate-300 shadow-2xl p-6 grid grid-cols-2 gap-6 z-50">
+            <div class="space-y-2">
+              <p class="font-num text-[11px] font-bold uppercase tracking-wider text-obsidian border-b border-slate-200 pb-2">Active Audit Dossiers</p>
+              <button onclick="loadEngagementClient('novacloud')" class="block w-full text-left text-xs font-bold text-slate-800 hover:text-sovereign py-1">→ NovaCloud Solutions Inc. (SaaS)</button>
+              <button onclick="loadEngagementClient('nexus')" class="block w-full text-left text-xs font-bold text-slate-800 hover:text-sovereign py-1">→ Nexus Global Logistics (SOX 404)</button>
+              <button onclick="loadEngagementClient('horizon')" class="block w-full text-left text-xs font-bold text-slate-800 hover:text-sovereign py-1">→ Horizon Health Systems (ITGC)</button>
+              <button onclick="loadEngagementClient('ecofreight')" class="block w-full text-left text-xs font-bold text-slate-800 hover:text-sovereign py-1">→ EcoFreight Energy Corp. (ESG)</button>
+            </div>
+            <div class="bg-alabaster border-l-4 border-sovereignBright p-4 flex flex-col justify-between">
+              <div>
+                <p class="text-xs font-extrabold text-obsidian">Audit Any Corporate Entity</p>
+                <p class="text-[11px] text-slate-600 mt-1.5 leading-relaxed">Initialize a custom 10-step statutory audit binder, upload working papers to Supabase Storage, and run ISA rules diagnostics.</p>
+              </div>
+              <button onclick="openNewEngagementModal()" class="mt-3 text-left font-num text-xs font-bold text-sovereign hover:underline">+ Initialize Custom Client →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Audit Workbench Direct Link -->
+        <a href="#assurance-engine" onclick="setEngineMode('lifecycle')" class="h-full flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-obsidian border-b-2 border-sovereignBright">
+          <span>10-Step Audit Engine</span>
+        </a>
+
+        <!-- Fee Calculator Direct Link -->
+        <a href="#assurance-engine" onclick="setEngineMode('calculator')" class="h-full flex items-center text-xs font-extrabold uppercase tracking-wider text-slate-800 hover:text-obsidian border-b-2 border-transparent hover:border-sovereignBright transition">
+          <span>Fee &amp; Materiality</span>
+        </a>
+
+        <!-- Insights Link -->
+        <a href="#insights" class="h-full flex items-center text-xs font-extrabold uppercase tracking-wider text-slate-800 hover:text-obsidian border-b-2 border-transparent hover:border-sovereignBright transition">
+          <span>Research</span>
+        </a>
+      </nav>
+
+      <!-- Header Right Actions -->
+      <div class="flex items-center gap-2.5">
+        <button onclick="openCloudDrawer('vault')" class="border border-slate-300 bg-alabaster hover:border-obsidian text-obsidian text-xs font-bold px-3.5 py-2.5 flex items-center gap-2 transition">
+          <i class="fa-solid fa-database text-sovereignBright"></i>
+          <span class="hidden sm:inline">Client &amp; Cloud Vault</span>
+          <span id="vaultCountBadge" class="font-num text-[11px] font-extrabold bg-obsidian text-white px-1.5 py-0.2">0</span>
+        </button>
+
+        <button onclick="openRfpModal()" class="hidden sm:inline-flex items-center gap-2 bg-obsidian hover:bg-midnight text-white text-xs font-extrabold uppercase tracking-wider px-5 py-2.5 border border-obsidian transition">
+          <span>Initiate RFP</span>
+          <i class="fa-solid fa-arrow-right text-[10px] text-amber-400"></i>
+        </button>
+
+        <button onclick="toggleMobileNav()" aria-label="Menu" class="lg:hidden p-2.5 border border-slate-300 text-obsidian">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div id="mobileNavDrawer" class="hidden lg:hidden bg-white border-t border-slate-200 px-4 py-4 space-y-2.5">
+      <a href="#assurance-engine" onclick="toggleMobileNav(); setEngineMode('lifecycle');" class="block py-2 text-xs font-extrabold uppercase tracking-wider text-obsidian border-b border-slate-100">10-Step Audit Lifecycle Engine</a>
+      <a href="#assurance-engine" onclick="toggleMobileNav(); setEngineMode('calculator');" class="block py-2 text-xs font-extrabold uppercase tracking-wider text-slate-700 border-b border-slate-100">Statutory Fee &amp; Materiality Calculator</a>
+      <a href="#practices" onclick="toggleMobileNav()" class="block py-2 text-xs font-extrabold uppercase tracking-wider text-slate-700 border-b border-slate-100">Practices &amp; Service Matrix</a>
+      <a href="#insights" onclick="toggleMobileNav()" class="block py-2 text-xs font-extrabold uppercase tracking-wider text-slate-700 border-b border-slate-100">Editorial Research &amp; Insights</a>
+      <button onclick="toggleMobileNav(); openCloudDrawer('config');" class="block w-full text-left py-2 text-xs font-extrabold uppercase tracking-wider text-sovereign">Configure Supabase Cloud Backend</button>
+      <button onclick="toggleMobileNav(); openRfpModal();" class="w-full bg-obsidian text-white text-xs font-extrabold uppercase tracking-wider py-3 mt-1">Initiate Enterprise RFP</button>
+    </div>
+  </header>
+
+  <!-- ==================== 3. ASYMMETRIC SWISS-EDITORIAL HERO SECTION ==================== -->
+  <section id="top" class="bg-obsidian text-white blueprint-bg border-b-4 border-sovereignBright relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-20">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+
+        <!-- Left 7 Columns: Editorial Statement & Institutional Proof -->
+        <div class="lg:col-span-7 space-y-6">
+          <div class="inline-flex items-center gap-2.5 border border-amber-400/40 bg-amber-500/10 px-3.5 py-1.5 font-num text-[11px] font-semibold uppercase tracking-widest text-amber-300">
+            <span>Aurelius Global LLP</span>
+            <span>•</span>
+            <span>2026 Statutory Assurance &amp; AI Governance</span>
+          </div>
+
+          <h1 class="font-editorial text-4xl sm:text-5xl lg:text-[54px] font-semibold tracking-tight leading-[1.08] text-white">
+            Institutional Assurance for Complex Capital.
+          </h1>
+
+          <p class="text-sm sm:text-base text-slate-300 max-w-2xl leading-relaxed">
+            Engineered for audit committees, CFOs, and global boards. Aurelius unifies statutory financial audit rigor, SOX 404 internal control testing, full-population Benford’s Law ledger forensics, and cloud-persisted ISA working paper vaults in one platform.
+          </p>
+
+          <!-- Primary Hero Action Strip -->
+          <div class="flex flex-wrap items-center gap-3.5 pt-2">
+            <a href="#assurance-engine" onclick="setEngineMode('lifecycle')" class="bg-sovereignBright hover:bg-amber-500 text-obsidian font-extrabold text-xs uppercase tracking-wider px-6 py-4 inline-flex items-center gap-2.5 transition">
+              <i class="fa-solid fa-layer-group"></i>
+              <span>Enter 10-Step Audit Workbench</span>
+            </a>
+            <a href="#assurance-engine" onclick="setEngineMode('calculator')" class="bg-white/10 hover:bg-white/20 border border-white/25 text-white font-bold text-xs uppercase tracking-wider px-6 py-4 inline-flex items-center gap-2.5 transition">
+              <i class="fa-solid fa-scale-balanced text-amber-400"></i>
+              <span>Calculate Audit Fee &amp; ISA 320</span>
+            </a>
+          </div>
+
+          <!-- Key Institutional Metrics Strip -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-5 pt-8 mt-4 border-t border-white/15">
+            <div>
+              <span id="heroGlobalFeeMetric" class="block font-num text-2xl font-bold text-white">$482M</span>
+              <span class="block text-[11px] text-slate-400 mt-0.5">Member Firm Fee Volume</span>
+            </div>
+            <div>
+              <span class="block font-num text-2xl font-bold text-amber-400">99.7%</span>
+              <span class="block text-[11px] text-slate-400 mt-0.5">PCAOB &amp; NFRA Clean Rate</span>
+            </div>
+            <div>
+              <span class="block font-num text-2xl font-bold text-white">142</span>
+              <span class="block text-[11px] text-slate-400 mt-0.5">Regulatory Jurisdictions</span>
+            </div>
+            <div>
+              <span class="block font-num text-2xl font-bold text-white">ISA 210–700</span>
+              <span class="block text-[11px] text-slate-400 mt-0.5">Full Lifecycle Engine</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right 5 Columns: Architectural Engagement Quick-Launcher & Cloud Ledger Card -->
+        <div class="lg:col-span-5 bg-white text-slate-900 border-t-4 border-sovereignBright shadow-2xl">
+          <div class="px-6 py-4 bg-alabaster border-b border-slate-200 flex items-center justify-between">
+            <div>
+              <span class="font-num text-[10px] font-bold uppercase tracking-widest text-sovereign block">Live Engagement Switchboard</span>
+              <h2 class="text-sm font-extrabold text-obsidian">Select or Launch Audit Binder</h2>
+            </div>
+            <button onclick="openNewEngagementModal()" class="bg-obsidian hover:bg-midnight text-white font-num text-[11px] font-bold px-3 py-1.5 transition">
+              + New Firm
+            </button>
+          </div>
+
+          <div id="heroClientQuickList" class="divide-y divide-slate-200"></div>
+
+          <div class="p-4 bg-alabaster border-t border-slate-200 flex items-center justify-between gap-3">
+            <div class="text-[11px] text-slate-600">
+              <strong class="text-obsidian">Backend Storage:</strong>
+              <span id="heroCloudSyncHint">Ready for Supabase PostgreSQL &amp; S3 Vault</span>
+            </div>
+            <button onclick="openCloudDrawer('config')" class="shrink-0 font-num text-[11px] font-bold text-cobalt hover:underline">
+              Connect DB →
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 4. PRIMARY COMMAND CENTER: AURELIUS ASSURANCE ENGINE ==================== -->
+  <section id="assurance-engine" class="py-16 bg-alabaster border-b border-hairline">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <!-- Section Header & Dual-Mode Architectural Switcher -->
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between mb-8 gap-6">
+        <div>
+          <span class="font-num text-xs font-bold uppercase tracking-[0.2em] text-sovereign block mb-1.5">Aurelius Prism™ Execution Architecture</span>
+          <h2 class="font-editorial text-3xl sm:text-4xl font-semibold text-obsidian tracking-tight">Assurance &amp; Statutory Audit Command Center</h2>
+        </div>
+
+        <div class="inline-flex flex-wrap border-2 border-obsidian bg-white self-start">
+          <button onclick="setEngineMode('lifecycle')" id="tabBtnLifecycle" class="px-5 py-3 text-xs font-extrabold uppercase tracking-wider bg-obsidian text-white flex items-center gap-2 transition">
+            <i class="fa-solid fa-diagram-project text-amber-400"></i>
+            <span>10-Step Audit Lifecycle &amp; ISA Engine</span>
+          </button>
+          <button onclick="setEngineMode('calculator')" id="tabBtnCalculator" class="px-5 py-3 text-xs font-extrabold uppercase tracking-wider text-obsidian hover:bg-slate-100 flex items-center gap-2 transition">
+            <i class="fa-solid fa-calculator text-sovereign"></i>
+            <span>Audit Fee &amp; Materiality Calculator</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- MODE 1: 10-STEP END-TO-END AUDIT LIFECYCLE & ISA / SUPABASE WORKBENCH     -->
+      <!-- ========================================================================= -->
+      <div id="enginePanelLifecycle" class="space-y-6">
+
+        <!-- 1A. Top Project Control Ribbon -->
+        <div class="bg-obsidian text-white p-4 sm:p-5 border-l-4 border-sovereignBright flex flex-wrap items-center justify-between gap-4 shadow-md">
+          <div class="flex flex-wrap items-center gap-3">
+            <div class="flex items-center gap-2 bg-white/10 border border-white/15 px-3 py-1.5 font-num text-[11px] font-bold text-amber-400">
+              <i class="fa-solid fa-shield-halved"></i>
+              <span>ACTIVE ENGAGEMENT</span>
+            </div>
+
+            <div class="flex items-center gap-2.5 bg-white/5 border border-white/15 px-3.5 py-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <strong id="ribbonClientName" class="text-xs sm:text-sm font-extrabold text-white">NovaCloud Solutions Inc.</strong>
+              <button onclick="openConfigModal()" class="ml-1 font-num text-[10px] font-bold uppercase bg-white/10 hover:bg-white/20 text-amber-300 border border-amber-400/30 px-2 py-0.5 transition">
+                <i class="fa-solid fa-sliders mr-1"></i>Config / Rename
+              </button>
+            </div>
+
+            <div class="bg-white/10 border border-white/15 px-3 py-1.5 font-num text-xs">
+              <span id="ribbonCompletionPct" class="font-extrabold text-amber-400">15%</span>
+              <span class="text-slate-300"> Completed</span>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="openNewEngagementModal()" class="bg-sovereignBright hover:bg-amber-500 text-obsidian text-xs font-extrabold uppercase tracking-wider px-4 py-2 transition flex items-center gap-1.5">
+              <i class="fa-solid fa-plus"></i>
+              <span>Audit Any Firm</span>
+            </button>
+            <button onclick="openKbModal()" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-bold uppercase tracking-wider px-3.5 py-2 transition flex items-center gap-1.5">
+              <i class="fa-solid fa-book-bookmark text-amber-400"></i>
+              <span>ISA Knowledge Base</span>
+            </button>
+            <button onclick="syncAndExportAuditBinder()" id="ribbonCloudSyncBtn" class="bg-cobalt hover:bg-blue-700 text-white text-xs font-extrabold uppercase tracking-wider px-4 py-2 transition flex items-center gap-1.5">
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+              <span id="ribbonCloudSyncText">Cloud Sync / Drive</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 1B. 10-Step Horizontal Architectural Stepper -->
+        <div class="bg-white border border-slate-300 p-4 sm:p-5">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-200">
+            <div class="flex items-center gap-3">
+              <button onclick="stepLifecycle(-1)" id="stepperPrevBtn" class="border border-slate-300 bg-alabaster hover:bg-slate-200 text-obsidian font-num text-xs font-bold px-3 py-1.5 transition">
+                ← PREV
+              </button>
+              <span class="font-num text-xs font-extrabold uppercase tracking-widest text-obsidian">
+                Statutory Audit Workflow Sequence (ISA 210 → ISQM 1)
+              </span>
+            </div>
+            <div class="font-num text-xs font-bold text-slate-700 bg-alabaster border border-slate-300 px-3 py-1">
+              WORKPAPER PROGRESS: <span id="stepperProgressTag" class="text-obsidian font-extrabold">15%</span>
+            </div>
+          </div>
+
+          <div id="lifecycleStepperTrack" class="flex items-stretch gap-2 overflow-x-auto pb-2"></div>
+        </div>
+
+        <!-- 1C. Context & Inter-Phase Data Output Transfer Banner -->
+        <div class="bg-white border border-slate-300 p-5 space-y-4">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div class="flex items-start sm:items-center gap-3.5">
+              <div class="w-11 h-11 bg-obsidian text-amber-400 flex items-center justify-center shrink-0 border border-slate-800">
+                <i class="fa-solid fa-file-contract text-lg"></i>
+              </div>
+              <div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="font-num text-[10px] font-bold uppercase tracking-widest text-slate-500">Engagement File:</span>
+                  <h3 id="bannerClientHeading" class="text-base sm:text-lg font-extrabold text-obsidian uppercase">NOVACLOUD SOLUTIONS INC.</h3>
+                  <span id="bannerCategoryBadge" class="font-num text-[10px] font-bold bg-alabaster border border-slate-300 text-obsidian px-2 py-0.5">FINANCIAL AUDIT</span>
+                </div>
+                <p id="bannerClientMeta" class="font-num text-xs text-slate-600 mt-1">
+                  Period: FY 2025 (Ended Dec 31, 2025) &nbsp;|&nbsp; Sector: Cloud Enterprise Software &nbsp;|&nbsp; Fee: $175,000
+                </p>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2.5">
+              <button onclick="initiateCustomFileUpload()" class="bg-obsidian hover:bg-midnight text-white text-xs font-extrabold uppercase tracking-wider px-4 py-2.5 transition flex items-center gap-2">
+                <i class="fa-solid fa-cloud-arrow-up text-amber-400"></i>
+                <span>Upload Working Paper</span>
+              </button>
+              <button onclick="executeStepIsaRulesEngine()" class="bg-sovereignBright hover:bg-amber-500 text-obsidian text-xs font-extrabold uppercase tracking-wider px-4 py-2.5 transition flex items-center gap-2">
+                <i class="fa-solid fa-microchip"></i>
+                <span>Run ISA Rules Analysis</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Inter-Step Data Hand-Off Strip -->
+          <div class="bg-alabaster border-l-4 border-cobalt border border-slate-200 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex items-start gap-3">
+              <i class="fa-solid fa-code-branch text-cobalt mt-0.5"></i>
+              <div>
+                <span class="block font-num text-[10px] font-extrabold uppercase tracking-widest text-cobalt">Data Output Transferred to Next Audit Phase:</span>
+                <p id="interStepDataSummary" class="text-xs text-slate-700 mt-0.5"></p>
+              </div>
+            </div>
+            <button onclick="advanceLifecycleStep()" id="advanceStepCta" class="shrink-0 bg-obsidian hover:bg-midnight text-white text-xs font-extrabold uppercase tracking-wider px-5 py-3 transition flex items-center gap-2">
+              <span id="advanceStepCtaText">Proceed → Step 2</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 1D. Dynamic Active Step Workspace (Steps 1 to 10 + Working Papers Vault Gate) -->
+        <div id="activeStepCanvas"></div>
+
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- MODE 2: STATUTORY AUDIT FEE, MAN-HOURS & ISA 320 MATERIALITY CALCULATOR   -->
+      <!-- ========================================================================= -->
+      <div id="enginePanelCalculator" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <!-- Left 7 Columns -->
+        <div class="lg:col-span-7 bg-white border border-slate-300 p-6 sm:p-8 space-y-6">
+          <div class="flex items-center justify-between border-b border-slate-200 pb-4">
+            <div>
+              <span class="font-num text-[10px] font-bold uppercase tracking-widest text-sovereign block">ISA 320 &amp; Resource Allocation Model</span>
+              <h3 class="text-lg font-extrabold text-obsidian">Statutory Audit Fee &amp; Scope Estimator</h3>
+            </div>
+            <button onclick="resetCalculatorInputs()" class="font-num text-xs font-bold text-slate-500 hover:text-obsidian underline">Reset Defaults</button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <label for="calcEntityClass" class="block font-num text-[11px] font-bold uppercase text-slate-700 mb-1.5">Entity Classification</label>
+              <select id="calcEntityClass" onchange="computeAuditFee()" class="w-full border border-slate-300 px-3.5 py-2.5 text-sm font-semibold bg-white focus:border-obsidian focus:outline-none">
+                <option value="listed" selected>Public Interest Entity (Listed PIE)</option>
+                <option value="private">Private Mid-Market Enterprise</option>
+                <option value="financial">Regulated Financial Institution / NBFC</option>
+                <option value="multinational">Multinational Consolidating Group</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="calcSectorRisk" class="block font-num text-[11px] font-bold uppercase text-slate-700 mb-1.5">Industry Complexity Multiplier</label>
+              <select id="calcSectorRisk" onchange="computeAuditFee()" class="w-full border border-slate-300 px-3.5 py-2.5 text-sm font-semibold bg-white focus:border-obsidian focus:outline-none">
+                <option value="financial">Banking, FinTech &amp; Capital Markets (1.35x)</option>
+                <option value="tech" selected>Cloud Enterprise Software &amp; AI (1.15x)</option>
+                <option value="energy">Energy, Utilities &amp; Carbon Markets (1.25x)</option>
+                <option value="logistics">Global Logistics &amp; Manufacturing (1.10x)</option>
+              </select>
+            </div>
+
+            <div class="sm:col-span-2 bg-alabaster p-4 border border-slate-200">
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                <label for="calcRevInput" class="font-num text-[11px] font-bold uppercase text-slate-700">Annual Gross Revenue (<span class="curr-code">USD</span>)</label>
+                <span id="calcRevDisplay" class="font-num text-xs font-extrabold text-obsidian">$125,000,000 ($125.00M)</span>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+                <input type="number" id="calcRevInput" value="125000000" min="1000000" step="1000000" oninput="syncRevFromBox()" class="sm:col-span-5 bg-white border border-slate-300 px-3 py-2 text-sm font-num font-bold focus:border-obsidian focus:outline-none" />
+                <input type="range" id="calcRevSlider" min="1000000" max="1000000000" step="5000000" value="125000000" oninput="syncRevFromSlider()" class="sm:col-span-7 accent-obsidian cursor-pointer" />
+              </div>
+            </div>
+
+            <div>
+              <label for="calcAssetsInput" class="block font-num text-[11px] font-bold uppercase text-slate-700 mb-1.5">Total Balance Sheet Assets (<span class="curr-code">USD</span>)</label>
+              <input type="number" id="calcAssetsInput" value="98000000" min="500000" step="1000000" oninput="computeAuditFee()" class="w-full border border-slate-300 px-3.5 py-2.5 text-sm font-num font-bold" />
+            </div>
+
+            <div>
+              <label for="calcPbtInput" class="block font-num text-[11px] font-bold uppercase text-slate-700 mb-1.5">Normalized Pre-Tax Income (<span class="curr-code">USD</span>)</label>
+              <input type="number" id="calcPbtInput" value="18500000" step="500000" oninput="computeAuditFee()" class="w-full border border-slate-300 px-3.5 py-2.5 text-sm font-num font-bold" />
+            </div>
+
+            <div>
+              <div class="flex justify-between items-center mb-1.5">
+                <label for="calcEntitiesSlider" class="font-num text-[11px] font-bold uppercase text-slate-700">Subsidiaries &amp; Jurisdictions</label>
+                <span id="calcEntitiesLabel" class="font-num text-xs font-bold text-obsidian bg-alabaster px-2 py-0.5 border border-slate-300">4 Entities</span>
+              </div>
+              <input type="range" id="calcEntitiesSlider" min="1" max="25" value="4" oninput="computeAuditFee()" class="w-full accent-obsidian cursor-pointer mt-2" />
+            </div>
+
+            <div>
+              <label for="calcErpControl" class="block font-num text-[11px] font-bold uppercase text-slate-700 mb-1.5">ERP &amp; Internal Control Environment</label>
+              <select id="calcErpControl" onchange="computeAuditFee()" class="w-full border border-slate-300 px-3.5 py-2.5 text-sm font-semibold bg-white">
+                <option value="automated">Automated Cloud ERP / High Reliance (0.95x)</option>
+                <option value="hybrid" selected>Hybrid Multi-ERP Consolidation (1.15x)</option>
+                <option value="manual">Decentralized / Substantive-Only Approach (1.40x)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-slate-200">
+            <p class="font-num text-[11px] font-bold uppercase text-slate-700 mb-3">Assurance &amp; Advisory Workstreams</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <label class="flex items-start gap-2.5 p-3 border border-slate-200 hover:border-obsidian cursor-pointer">
+                <input type="checkbox" id="chkScopeStat" checked onchange="computeAuditFee()" class="mt-0.5 accent-obsidian" />
+                <div>
+                  <span class="block text-xs font-extrabold text-obsidian">Statutory Financial Audit</span>
+                  <span class="block text-[11px] text-slate-500">ISA 700 / IFRS / US GAAP / Ind AS</span>
+                </div>
+              </label>
+              <label class="flex items-start gap-2.5 p-3 border border-slate-200 hover:border-obsidian cursor-pointer">
+                <input type="checkbox" id="chkScopeSox" checked onchange="computeAuditFee()" class="mt-0.5 accent-obsidian" />
+                <div>
+                  <span class="block text-xs font-extrabold text-obsidian">Integrated SOX 404 / ICFR</span>
+                  <span class="block text-[11px] text-slate-500">COSO Controls &amp; ITGC Testing</span>
+                </div>
+              </label>
+              <label class="flex items-start gap-2.5 p-3 border border-slate-200 hover:border-obsidian cursor-pointer">
+                <input type="checkbox" id="chkScopeEsg" onchange="computeAuditFee()" class="mt-0.5 accent-obsidian" />
+                <div>
+                  <span class="block text-xs font-extrabold text-obsidian">ESG &amp; Carbon Assurance</span>
+                  <span class="block text-[11px] text-slate-500">ISSA 5000 / CSRD / BRSR Core</span>
+                </div>
+              </label>
+              <label class="flex items-start gap-2.5 p-3 border border-slate-200 hover:border-obsidian cursor-pointer">
+                <input type="checkbox" id="chkScopeTp" onchange="computeAuditFee()" class="mt-0.5 accent-obsidian" />
+                <div>
+                  <span class="block text-xs font-extrabold text-obsidian">Transfer Pricing &amp; BEPS 2.0</span>
+                  <span class="block text-[11px] text-slate-500">Pillar Two &amp; Arm's-Length Study</span>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right 5 Columns: Live Output Card -->
+        <div class="lg:col-span-5 flex flex-col gap-6">
+          <div class="bg-obsidian text-white p-6 border-t-4 border-sovereignBright shadow-lg">
+            <div class="flex items-center justify-between mb-3">
+              <span class="font-num text-xs font-bold uppercase tracking-wider text-amber-400">ISA 320 Planning Materiality</span>
+              <span id="outMatBenchTag" class="font-num text-[11px] bg-white/10 px-2.5 py-0.5 border border-white/20">5.0% of PBT</span>
+            </div>
+            <div class="grid grid-cols-3 gap-2.5 mt-4">
+              <div class="bg-white/5 border border-white/15 p-3">
+                <span class="font-num text-[10px] text-slate-300 uppercase block">Overall Mat.</span>
+                <span id="outOverallMat" class="font-num text-sm sm:text-base font-extrabold text-white mt-1 block">$925,000</span>
+              </div>
+              <div class="bg-white/5 border border-white/15 p-3">
+                <span class="font-num text-[10px] text-slate-300 uppercase block">Perf. Mat (75%)</span>
+                <span id="outPerfMat" class="font-num text-sm sm:text-base font-bold text-amber-400 mt-1 block">$693,750</span>
+              </div>
+              <div class="bg-white/5 border border-white/15 p-3">
+                <span class="font-num text-[10px] text-slate-300 uppercase block">Trivial (5%)</span>
+                <span id="outCttMat" class="font-num text-sm sm:text-base font-bold text-white mt-1 block">$46,250</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white border border-slate-300 p-6 flex-1 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between border-b border-slate-200 pb-3 mb-4">
+                <h4 class="text-xs font-extrabold text-obsidian uppercase tracking-wider">Fee &amp; Staffing Allocation</h4>
+                <span id="outTimelineWeeks" class="font-num text-xs font-bold bg-alabaster text-obsidian px-2.5 py-1 border border-slate-300">7 Weeks</span>
+              </div>
+
+              <div class="flex items-baseline justify-between mb-4">
+                <div>
+                  <span class="font-num text-[10px] font-bold uppercase text-slate-500 block">Total Estimated Fee</span>
+                  <span id="outTotalFee" class="font-num text-3xl font-extrabold text-obsidian">$175,000</span>
+                </div>
+                <div class="text-right">
+                  <span class="font-num text-[10px] text-slate-500 uppercase block">Total Effort</span>
+                  <span id="outTotalHrs" class="font-num text-lg font-extrabold text-sovereign">580 Hrs</span>
+                </div>
+              </div>
+
+              <!-- Visual Effort Bar -->
+              <div class="w-full h-2.5 flex overflow-hidden mb-4 border border-slate-300">
+                <div class="bg-obsidian w-[10%]" title="Partner & EQR (10%)"></div>
+                <div class="bg-cobalt w-[20%]" title="Director / Manager (20%)"></div>
+                <div class="bg-slate-400 w-[50%]" title="Senior & Staff Auditors (50%)"></div>
+                <div class="bg-sovereignBright w-[20%]" title="IT, SOX & ESG Specialists (20%)"></div>
+              </div>
+
+              <div class="space-y-2 text-xs border-t border-slate-100 pt-3">
+                <div class="flex justify-between">
+                  <span class="text-slate-700 font-medium">Engagement Partner &amp; EQR (10%)</span>
+                  <span id="outPartnerHrs" class="font-num font-bold text-obsidian">58 hrs</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-700 font-medium">Audit Director / Manager (20%)</span>
+                  <span id="outManagerHrs" class="font-num font-bold text-obsidian">116 hrs</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-700 font-medium">Senior &amp; Staff Auditors (50%)</span>
+                  <span id="outStaffHrs" class="font-num font-bold text-obsidian">290 hrs</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-700 font-medium">IT, SOX &amp; ESG Specialists (20%)</span>
+                  <span id="outSpecHrs" class="font-num font-bold text-obsidian">116 hrs</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-slate-200 space-y-2.5">
+              <button onclick="convertFeeEstimateToProject()" class="w-full bg-obsidian hover:bg-midnight text-white font-extrabold text-xs uppercase tracking-wider py-3.5 px-4 transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-diagram-project text-amber-400"></i>
+                <span>Launch as Active 10-Step Audit Project</span>
+              </button>
+              <div class="flex gap-2">
+                <button onclick="openProposalMemo()" class="flex-1 border border-obsidian bg-alabaster hover:bg-slate-200 text-obsidian font-extrabold text-xs uppercase tracking-wider py-3 px-4 transition">
+                  Proposal Memo
+                </button>
+                <button onclick="saveEstimateToVault()" class="bg-sovereignBright hover:bg-amber-500 text-obsidian font-extrabold text-xs px-4 py-3 transition" title="Save to Cloud & Client Vault">
+                  <i class="fa-solid fa-cloud-arrow-up mr-1"></i> Save
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== 5. PRACTICES & MULTIDISCIPLINARY SERVICE MATRIX ==================== -->
+  <section id="practices" class="py-20 bg-white border-b border-hairline">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between mb-12 gap-6">
+        <div>
+          <span class="font-num text-xs font-bold uppercase tracking-[0.2em] text-sovereign block mb-2">Institutional Capabilities</span>
+          <h2 class="font-editorial text-3xl sm:text-4xl font-semibold text-obsidian tracking-tight">Practices &amp; Assurance Matrix</h2>
+          <p class="text-sm text-slate-600 mt-2 max-w-2xl">Select any service line below to pre-load its regulatory framework and staffing model directly into our Audit Fee &amp; Scope Estimator.</p>
+        </div>
+
+        <div class="inline-flex flex-wrap border border-slate-300 bg-alabaster p-1">
+          <button onclick="filterPracticeCards('all')" id="pracBtnAll" class="prac-filter bg-obsidian text-white font-num text-xs font-bold px-4 py-2 transition">All (9)</button>
+          <button onclick="filterPracticeCards('audit')" id="pracBtnAudit" class="prac-filter text-slate-700 hover:text-obsidian font-num text-xs font-bold px-4 py-2 transition">Audit &amp; Assurance</button>
+          <button onclick="filterPracticeCards('tax')" id="pracBtnTax" class="prac-filter text-slate-700 hover:text-obsidian font-num text-xs font-bold px-4 py-2 transition">Tax &amp; Legal</button>
+          <button onclick="filterPracticeCards('advisory')" id="pracBtnAdvisory" class="prac-filter text-slate-700 hover:text-obsidian font-num text-xs font-bold px-4 py-2 transition">Strategy &amp; Risk</button>
+        </div>
+      </div>
+
+      <div id="practicesMatrixGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </div>
+  </section>
+
+  <!-- ==================== 6. EDITORIAL THOUGHT LEADERSHIP & REGULATORY RESEARCH ==================== -->
+  <section id="insights" class="py-20 bg-alabaster border-b border-hairline">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between mb-10 gap-6">
+        <div>
+          <span class="font-num text-xs font-bold uppercase tracking-[0.2em] text-sovereign block mb-2">Aurelius Research Institute</span>
+          <h2 class="font-editorial text-3xl sm:text-4xl font-semibold text-obsidian tracking-tight">Regulatory Briefs &amp; Technical Outlooks</h2>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3">
+          <input type="text" id="researchSearchInput" oninput="renderResearchGrid()" placeholder="Filter monographs..." class="bg-white border border-slate-300 px-3.5 py-2 text-xs font-medium focus:border-obsidian focus:outline-none w-full sm:w-56" />
+          <select id="researchTopicSelect" onchange="renderResearchGrid()" class="border border-slate-300 px-3.5 py-2 text-xs font-bold text-obsidian bg-white focus:border-obsidian focus:outline-none">
+            <option value="All">All Domains</option>
+            <option value="Audit & Assurance">Audit &amp; Assurance</option>
+            <option value="AI & Algorithmic Governance">AI &amp; Algorithmic Governance</option>
+            <option value="International Tax">International Tax</option>
+            <option value="ESG & Sustainability">ESG &amp; Sustainability</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="researchGrid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+    </div>
+  </section>
+
+  <!-- ==================== 7. INSTITUTIONAL RFP CALLOUT BANNER ==================== -->
+  <section class="bg-obsidian text-white py-14 border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-8">
+      <div>
+        <span class="font-num text-[11px] font-bold uppercase tracking-widest text-amber-400 block mb-1">Conflict Clearance &amp; Partner Intake</span>
+        <h2 class="font-editorial text-2xl sm:text-3xl font-semibold">Initiate a Statutory Audit or Advisory Mandate</h2>
+        <p class="text-xs sm:text-sm text-slate-300 mt-2 max-w-2xl">Submit your RFP dossier directly to our Sector Managing Partners. Submitted RFPs sync automatically to Supabase PostgreSQL (when connected) and your Client Vault.</p>
+      </div>
+      <div class="flex flex-wrap gap-3 shrink-0">
+        <button onclick="openRfpModal()" class="bg-sovereignBright hover:bg-amber-500 text-obsidian font-extrabold text-xs uppercase tracking-wider px-6 py-4 transition">
+          Submit Formal RFP
+        </button>
+        <button onclick="openCloudDrawer('config')" class="border border-white/30 hover:bg-white/10 text-white font-bold text-xs uppercase tracking-wider px-6 py-4 transition">
+          Configure Cloud DB
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 8. GOVERNANCE FOOTER ==================== -->
+  <footer class="bg-midnight text-slate-400 pt-14 pb-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-10 border-b border-white/10 text-xs">
+        <div>
+          <span class="block text-base font-extrabold tracking-[0.14em] text-white mb-3">AURELIUS GLOBAL LLP</span>
+          <p class="leading-relaxed mb-3">An international network of independent statutory audit, tax, and strategy consulting member firms operating across 142 jurisdictions.</p>
+          <p class="font-num text-[11px] text-slate-500">ISQM 1 • ISO/IEC 27001 • PCAOB Registered</p>
+        </div>
+        <div>
+          <h4 class="font-num font-bold uppercase tracking-wider text-white mb-3">Practice Lines</h4>
+          <ul class="space-y-2">
+            <li><button onclick="jumpToPractice('audit', 'srv-stat')" class="hover:text-amber-400">Statutory Financial Audit</button></li>
+            <li><button onclick="jumpToPractice('audit', 'srv-sox')" class="hover:text-amber-400">SOX 404 &amp; Internal Controls</button></li>
+            <li><button onclick="jumpToPractice('tax', 'srv-tp')" class="hover:text-amber-400">Transfer Pricing &amp; BEPS 2.0</button></li>
+            <li><button onclick="jumpToPractice('advisory', 'srv-ai')" class="hover:text-amber-400">AI Governance &amp; ISO 42001</button></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-num font-bold uppercase tracking-wider text-white mb-3">Assurance Engines</h4>
+          <ul class="space-y-2">
+            <li><a href="#assurance-engine" onclick="setEngineMode('lifecycle')" class="hover:text-amber-400">10-Step Audit Lifecycle Simulator</a></li>
+            <li><a href="#assurance-engine" onclick="jumpToStep(6)" class="hover:text-amber-400">Benford’s Law GL Forensics</a></li>
+            <li><a href="#assurance-engine" onclick="setEngineMode('calculator')" class="hover:text-amber-400">ISA 320 Fee &amp; Materiality Calculator</a></li>
+            <li><button onclick="openCloudDrawer('config')" class="hover:text-amber-400">Supabase PostgreSQL &amp; Storage Setup</button></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-num font-bold uppercase tracking-wider text-white mb-3">Regulatory &amp; Ethics</h4>
+          <ul class="space-y-2">
+            <li><button onclick="openKbModal()" class="hover:text-amber-400">ISA / SOX / IESBA Standards Library</button></li>
+            <li><button onclick="openDisclosureModal('quality')" class="hover:text-amber-400">2026 Audit Quality &amp; ISQM 1 Report</button></li>
+            <li><button onclick="openDisclosureModal('independence')" class="hover:text-amber-400">IESBA Independence &amp; Conflict Policy</button></li>
+            <li><button onclick="openDisclosureModal('privacy')" class="hover:text-amber-400">Client Confidentiality &amp; Cloud Security</button></li>
+          </ul>
+        </div>
+      </div>
+      <div class="pt-6 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-500 gap-4">
+        <p>© 2026 Aurelius Global LLP. All rights reserved. Member firms are separate legal entities.</p>
+        <p class="font-num">Cloud Engine: Supabase PostgreSQL + S3 Storage Ready</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== DRAWER: CLOUD BACKEND (SUPABASE) & CLIENT VAULT ==================== -->
+  <div id="cloudDrawer" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex justify-end">
+    <div class="bg-white w-full max-w-2xl h-full flex flex-col border-l-4 border-sovereignBright shadow-2xl">
+      <div class="px-6 py-4 bg-obsidian text-white flex items-center justify-between">
+        <div>
+          <span class="font-num text-[10px] font-bold uppercase tracking-widest text-amber-400 block">Aurelius Cloud Architecture &amp; Client Vault</span>
+          <h3 class="text-base font-extrabold">Supabase Database, Storage Bucket &amp; Saved Dossiers</h3>
+        </div>
+        <button onclick="closeModal('cloudDrawer')" class="text-white/70 hover:text-white p-1"><i class="fa-solid fa-xmark text-xl"></i></button>
+      </div>
+
+      <!-- Drawer Tabs -->
+      <div class="grid grid-cols-2 bg-alabaster border-b border-slate-300 font-num text-xs font-bold">
+        <button onclick="switchCloudDrawerTab('config')" id="cdTabConfig" class="py-3 text-center border-b-2 border-obsidian text-obsidian">
+          1. Supabase Backend &amp; SQL Setup
+        </button>
+        <button onclick="switchCloudDrawerTab('vault')" id="cdTabVault" class="py-3 text-center text-slate-500">
+          2. Synced Engagements, Files &amp; RFPs
+        </button>
+      </div>
+
+      <!-- Tab 1: Supabase Config & 1-Click SQL Schema -->
+      <div id="cdPanelConfig" class="p-6 overflow-y-auto flex-1 space-y-6 text-xs">
+        <div id="supabaseLiveBanner" class="p-4 border border-amber-300 bg-amber-50 text-amber-950 flex items-start gap-3">
+          <i class="fa-solid fa-circle-info text-amber-600 text-base mt-0.5"></i>
+          <div>
+            <strong class="block">Local Vault Mode Active (Automatic Browser Persistence)</strong>
+            <span class="text-amber-900 mt-0.5 block">Connect your free Supabase project below to persist all audit engagements, RFP submissions, and uploaded working paper PDFs/CSVs to PostgreSQL and Cloud Storage across devices.</span>
+          </div>
+        </div>
+
+        <form onsubmit="connectSupabaseBackend(event)" class="space-y-4 border border-slate-300 p-5 bg-alabaster">
+          <h4 class="font-num font-extrabold uppercase text-obsidian">Connect Supabase Project Credentials</h4>
+          <div>
+            <label class="block font-num font-bold uppercase text-slate-700 mb-1">Supabase Project URL *</label>
+            <input type="url" id="sbUrlInput" required placeholder="https://your-project-id.supabase.co" class="w-full bg-white border border-slate-300 px-3.5 py-2.5 font-num text-xs focus:border-obsidian focus:outline-none" />
+          </div>
+          <div>
+            <label class="block font-num font-bold uppercase text-slate-700 mb-1">Supabase Anon / Public API Key *</label>
+            <input type="password" id="sbKeyInput" required placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." class="w-full bg-white border border-slate-300 px-3.5 py-2.5 font-num text-xs focus:border-obsidian focus:outline-none" />
+          </div>
+          <div class="flex flex-wrap items-center justify-between gap-2 pt-2">
+            <button type="button" onclick="disconnectSupabase()" class="text-xs font-bold text-red-600 hover:underline">Disconnect / Use Local Only</button>
+            <button type="submit" class="bg-obsidian hover:bg-midnight text-white font-extrabold uppercase tracking-wider px-5 py-2.5 transition">
+              Test &amp; Connect Cloud Backend
+            </button>
+          </div>
+        </form>
+
+        <!-- 1-Click Copyable SQL Schema for Supabase SQL Editor -->
+        <div class="border border-slate-300 p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <h4 class="font-num font-extrabold uppercase text-obsidian">Step 2: Run One-Time SQL Setup in Supabase</h4>
+              <p class="text-[11px] text-slate-600 mt-0.5">Paste this into your Supabase <strong>SQL Editor</strong> to create the tables and public <code>audit-workpapers</code> storage bucket.</p>
+            </div>
+            <button onclick="copySupabaseSql()" class="bg-cobalt hover:bg-blue-700 text-white font-num text-[11px] font-bold px-3.5 py-2 transition">
+              <i class="fa-regular fa-copy mr-1"></i> Copy SQL
+            </button>
+          </div>
+          <pre id="supabaseSqlBlock" class="bg-obsidian text-slate-200 p-4 font-num text-[11px] overflow-x-auto leading-relaxed">-- 1. Create Engagements, Workpapers & RFPs tables
+create table if not exists aurelius_engagements (
+  id text primary key,
+  client_name text not null,
+  category text,
+  period text,
+  industry text,
+  fee_usd numeric,
+  payload jsonb,
+  updated_at timestamptz default now()
+);
+
+create table if not exists aurelius_workpapers (
+  id text primary key,
+  client_id text not null,
+  step_num int not null,
+  doc_key text not null,
+  file_name text not null,
+  file_size text,
+  storage_url text,
+  uploaded_at timestamptz default now()
+);
+
+create table if not exists aurelius_rfps (
+  ref_id text primary key,
+  org_name text not null,
+  service_line text,
+  fee_estimate text,
+  exec_name text,
+  exec_email text,
+  created_at timestamptz default now()
+);
+
+-- 2. Enable open RLS policies for demo / client intake
+alter table aurelius_engagements enable row level security;
+alter table aurelius_workpapers enable row level security;
+alter table aurelius_rfps enable row level security;
+
+create policy "Public access engagements" on aurelius_engagements for all using (true) with check (true);
+create policy "Public access workpapers" on aurelius_workpapers for all using (true) with check (true);
+create policy "Public access rfps" on aurelius_rfps for all using (true) with check (true);
+
+-- 3. Create Storage Bucket for binary PDF/CSV working papers
+insert into storage.buckets (id, name, public) values ('audit-workpapers', 'audit-workpapers', true) on conflict do nothing;
+create policy "Public storage access" on storage.objects for all using (bucket_id = 'audit-workpapers') with check (bucket_id = 'audit-workpapers');</pre>
+        </div>
+      </div>
+
+      <!-- Tab 2: Synced Vault Dossiers, Uploaded Files & RFPs -->
+      <div id="cdPanelVault" class="hidden p-6 overflow-y-auto flex-1 space-y-6 text-xs"></div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: CONFIG / RENAME PROJECT ==================== -->
+  <div id="configModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-lg border-t-4 border-sovereignBright shadow-2xl">
+      <div class="px-6 py-4 bg-obsidian text-white flex items-center justify-between">
+        <span class="font-num text-xs font-bold uppercase tracking-wider text-amber-400">Engagement Configuration &amp; Rename</span>
+        <button onclick="closeModal('configModal')" class="text-white/70 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <form onsubmit="applyProjectConfig(event)" class="p-6 space-y-4 text-xs">
+        <div>
+          <label class="block font-num font-bold uppercase text-slate-700 mb-1">Corporate Client Legal Name</label>
+          <input type="text" id="cfgNameInput" required class="w-full border border-slate-300 px-3.5 py-2.5 text-sm font-bold" />
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block font-num font-bold uppercase text-slate-700 mb-1">Engagement Scope Type</label>
+            <select id="cfgTypeInput" class="w-full border border-slate-300 px-3 py-2.5 bg-white font-semibold">
+              <option value="FINANCIAL AUDIT">FINANCIAL AUDIT</option>
+              <option value="SOX & INTERNAL CONTROLS">SOX &amp; INTERNAL CONTROLS</option>
+              <option value="IT & CYBERSECURITY AUDIT">IT &amp; CYBERSECURITY AUDIT</option>
+              <option value="ESG & COMPLIANCE">ESG &amp; COMPLIANCE</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-num font-bold uppercase text-slate-700 mb-1">Statutory Audit Period</label>
+            <input type="text" id="cfgPeriodInput" required class="w-full border border-slate-300 px-3 py-2.5 font-num" />
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block font-num font-bold uppercase text-slate-700 mb-1">Industry Sector</label>
+            <input type="text" id="cfgSectorInput" required class="w-full border border-slate-300 px-3 py-2.5" />
+          </div>
+          <div>
+            <label class="block font-num font-bold uppercase text-slate-700 mb-1">Agreed Fee (Base USD)</label>
+            <input type="number" id="cfgFeeInput" required min="1000" step="1000" class="w-full border border-slate-300 px-3 py-2.5 font-num font-bold" />
+          </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-200">
+          <button type="button" onclick="closeModal('configModal')" class="border border-slate-300 text-slate-700 font-bold px-4 py-2.5">Cancel</button>
+          <button type="submit" class="bg-obsidian hover:bg-midnight text-white font-extrabold uppercase tracking-wider px-5 py-2.5">Save &amp; Sync Project</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: + AUDIT ANY FIRM / NEW ENGAGEMENT ==================== -->
+  <div id="newEngagementModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-2xl border-t-4 border-sovereignBright shadow-2xl">
+      <div class="px-6 py-4 bg-obsidian text-white flex items-center justify-between">
+        <span class="font-num text-xs font-bold uppercase tracking-wider text-amber-400">Audit Any Firm — Switch Client or Initialize New Binder</span>
+        <button onclick="closeModal('newEngagementModal')" class="text-white/70 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <div class="p-6 space-y-6 max-h-[84vh] overflow-y-auto text-xs">
+        <div>
+          <h4 class="font-num font-extrabold uppercase text-obsidian mb-2.5">Existing Client Engagements</h4>
+          <div id="modalClientCards" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+        </div>
+
+        <form onsubmit="createNewClientEngagement(event)" class="bg-alabaster border border-slate-300 p-5 space-y-4">
+          <h4 class="font-num font-extrabold uppercase text-obsidian">+ Create Custom Corporate Audit Binder</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block font-num text-[10px] font-bold uppercase text-slate-700 mb-1">Entity Legal Name *</label>
+              <input type="text" id="newEntityName" required placeholder="e.g., Meridian Aerospace Holdings" class="w-full bg-white border border-slate-300 px-3 py-2 font-bold" />
+            </div>
+            <div>
+              <label class="block font-num text-[10px] font-bold uppercase text-slate-700 mb-1">Assurance Mandate</label>
+              <select id="newEntityType" class="w-full bg-white border border-slate-300 px-3 py-2 font-semibold">
+                <option value="FINANCIAL AUDIT">FINANCIAL AUDIT</option>
+                <option value="SOX & INTERNAL CONTROLS">SOX &amp; INTERNAL CONTROLS</option>
+                <option value="IT & CYBERSECURITY AUDIT">IT &amp; CYBERSECURITY AUDIT</option>
+                <option value="ESG & COMPLIANCE">ESG &amp; COMPLIANCE</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-num text-[10px] font-bold uppercase text-slate-700 mb-1">Industry Sector *</label>
+              <input type="text" id="newEntitySector" required placeholder="e.g., Aerospace & Defense" class="w-full bg-white border border-slate-300 px-3 py-2" />
+            </div>
+            <div>
+              <label class="block font-num text-[10px] font-bold uppercase text-slate-700 mb-1">Audit Period *</label>
+              <input type="text" id="newEntityPeriod" required value="FY 2026 (Ended Dec 31, 2026)" class="w-full bg-white border border-slate-300 px-3 py-2 font-num" />
+            </div>
+            <div>
+              <label class="block font-num text-[10px] font-bold uppercase text-slate-700 mb-1">Annual Revenue (USD) *</label>
+              <input type="number" id="newEntityRev" required value="220000000" min="100000" class="w-full bg-white border border-slate-300 px-3 py-2 font-num" />
+            </div>
+            <div>
+              <label class="block font-num text-[10px] font-bold uppercase text-slate-700 mb-1">Agreed Fee (USD) *</label>
+              <input type="number" id="newEntityFee" required value="215000" min="5000" class="w-full bg-white border border-slate-300 px-3 py-2 font-num font-bold" />
+            </div>
+          </div>
+          <div class="flex justify-end">
+            <button type="submit" class="bg-obsidian hover:bg-midnight text-white font-extrabold uppercase tracking-wider px-5 py-2.5">
+              Initialize &amp; Sync to Vault
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: ISA KNOWLEDGE BASE ==================== -->
+  <div id="kbModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-3xl max-h-[86vh] flex flex-col border-t-4 border-obsidian shadow-2xl">
+      <div class="px-6 py-4 bg-obsidian text-white flex items-center justify-between">
+        <div>
+          <span class="font-num text-[10px] font-bold uppercase tracking-widest text-amber-400 block">Aurelius Technical Reference</span>
+          <h3 class="text-base font-extrabold">ISA, SOX 404, ISQM 1 &amp; IESBA Standards Knowledge Base</h3>
+        </div>
+        <button onclick="closeModal('kbModal')" class="text-white/70 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <div class="p-4 bg-alabaster border-b border-slate-200">
+        <input type="text" id="kbFilterInput" oninput="renderKbStandards(this.value)" placeholder="Search ISA 210, ISA 320, ISA 240, SOX 404, Going Concern, IESBA..." class="w-full bg-white border border-slate-300 px-3.5 py-2 text-xs font-medium focus:border-obsidian focus:outline-none" />
+      </div>
+      <div id="kbListContainer" class="p-6 overflow-y-auto space-y-4 divide-y divide-slate-100"></div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: GLOBAL COMMAND SEARCH (Cmd+K) ==================== -->
+  <div id="searchModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-start justify-center pt-20 px-4">
+    <div class="bg-white w-full max-w-2xl border-t-4 border-obsidian shadow-2xl">
+      <div class="p-4 border-b border-slate-200 flex items-center gap-3">
+        <i class="fa-solid fa-magnifying-glass text-obsidian"></i>
+        <input type="text" id="cmdSearchInput" oninput="runCmdSearch(this.value)" placeholder="Jump to any of the 10 Audit Lifecycle steps, practices, clients, or monographs..." class="w-full text-sm font-medium focus:outline-none" />
+        <button onclick="closeModal('searchModal')" class="text-slate-400 hover:text-obsidian"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <div id="cmdSearchResults" class="max-h-96 overflow-y-auto divide-y divide-slate-100 p-2"></div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: PROPOSAL MEMORANDUM ==================== -->
+  <div id="proposalModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-3xl max-h-[88vh] flex flex-col border-t-4 border-obsidian shadow-2xl">
+      <div class="px-6 py-4 bg-obsidian text-white flex items-center justify-between">
+        <span class="font-num text-xs font-bold uppercase tracking-wider text-amber-400">Aurelius Global LLP — Formal Assurance Scope Memorandum</span>
+        <button onclick="closeModal('proposalModal')" class="text-white/70 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <div id="proposalBody" class="p-6 sm:p-8 overflow-y-auto space-y-5 text-xs sm:text-sm"></div>
+      <div class="px-6 py-4 bg-alabaster border-t border-slate-200 flex flex-wrap items-center justify-between gap-2">
+        <button onclick="printTarget('proposalBody')" class="border border-slate-400 bg-white hover:bg-slate-100 text-obsidian text-xs font-bold px-4 py-2.5 flex items-center gap-2">
+          <i class="fa-solid fa-print"></i> Print / Save PDF
+        </button>
+        <div class="flex gap-2">
+          <button onclick="saveEstimateToVault(); closeModal('proposalModal');" class="bg-sovereignBright text-obsidian text-xs font-extrabold px-4 py-2.5">Save to Vault</button>
+          <button onclick="closeModal('proposalModal'); openRfpModal();" class="bg-obsidian text-white text-xs font-extrabold px-4 py-2.5">Attach to RFP →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: MONOGRAPH READER ==================== -->
+  <div id="monographModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-3xl max-h-[88vh] flex flex-col border-t-4 border-sovereignBright shadow-2xl">
+      <div class="px-6 py-4 bg-alabaster border-b border-slate-200 flex items-center justify-between">
+        <span id="monoDomainTag" class="font-num text-xs font-bold uppercase tracking-wider text-sovereign">Research Monograph</span>
+        <button onclick="closeModal('monographModal')" class="text-slate-500 hover:text-obsidian"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <div class="p-6 sm:p-8 overflow-y-auto space-y-5">
+        <h3 id="monoTitleTag" class="font-editorial text-2xl sm:text-3xl font-semibold text-obsidian leading-tight"></h3>
+        <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500 border-b border-slate-200 pb-4">
+          <strong id="monoAuthorTag" class="text-obsidian"></strong>
+          <span>•</span>
+          <span id="monoDateTag"></span>
+          <span>•</span>
+          <span id="monoReadTag" class="font-num font-bold text-sovereign"></span>
+        </div>
+        <div class="bg-alabaster border-l-4 border-obsidian p-4">
+          <p class="font-num text-[11px] font-bold uppercase tracking-wider text-obsidian mb-2">Audit Committee &amp; Board Takeaways</p>
+          <ul id="monoTakeaways" class="list-disc list-inside text-xs sm:text-sm text-slate-700 space-y-1.5"></ul>
+        </div>
+        <div id="monoContent" class="text-sm text-slate-700 leading-relaxed space-y-4"></div>
+      </div>
+      <div class="px-6 py-4 bg-alabaster border-t border-slate-200 flex justify-end gap-3">
+        <button onclick="closeModal('monographModal'); openRfpModal();" class="bg-obsidian text-white text-xs font-extrabold uppercase tracking-wider px-5 py-2.5">Request Partner Briefing</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: 3-STEP ENTERPRISE RFP INTAKE ==================== -->
+  <div id="rfpModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-2xl border-t-4 border-sovereignBright shadow-2xl">
+      <div class="px-6 py-4 bg-obsidian text-white flex items-center justify-between">
+        <div>
+          <span class="font-num text-[10px] font-bold uppercase tracking-widest text-amber-400 block">Conflict Clearance &amp; Mandate Intake</span>
+          <h3 class="text-base font-extrabold">Submit Enterprise Request for Proposal (RFP)</h3>
+        </div>
+        <button onclick="closeModal('rfpModal')" class="text-white/70 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <div class="grid grid-cols-3 bg-alabaster border-b border-slate-200 font-num text-xs font-bold">
+        <div id="rfpTab1" class="py-2.5 text-center border-b-2 border-obsidian text-obsidian">1. Entity Profile</div>
+        <div id="rfpTab2" class="py-2.5 text-center text-slate-400">2. Scope &amp; Fee</div>
+        <div id="rfpTab3" class="py-2.5 text-center text-slate-400">3. Executive Sign-Off</div>
+      </div>
+
+      <div class="p-6 sm:p-8 text-xs">
+        <div id="rfpStep1" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block font-num font-bold uppercase text-slate-700 mb-1">Legal Entity Name *</label>
+              <input type="text" id="rfpEntityInput" class="w-full border border-slate-300 px-3.5 py-2.5 text-sm font-bold" />
+            </div>
+            <div>
+              <label class="block font-num font-bold uppercase text-slate-700 mb-1">Reporting Framework</label>
+              <select id="rfpFrameworkInput" class="w-full border border-slate-300 px-3.5 py-2.5 text-sm bg-white">
+                <option value="IFRS / International Statutory">IFRS / International Statutory</option>
+                <option value="US GAAP / SEC PCAOB">US GAAP / SEC PCAOB</option>
+                <option value="Ind AS / Companies Act 2013">Ind AS / Companies Act 2013</option>
+                <option value="SOX 404 / COSO Internal Controls">SOX 404 / COSO Internal Controls</option>
+              </select>
+            </div>
+          </div>
+          <p id="rfpErrMsg1" class="hidden text-red-600 font-bold">Please enter the legal entity name.</p>
+          <div class="flex justify-end pt-2">
+            <button onclick="goRfpStep(2)" class="bg-obsidian text-white font-extrabold uppercase tracking-wider px-6 py-3">Next: Scope &amp; Fee →</button>
+          </div>
+        </div>
+
+        <div id="rfpStep2" class="hidden space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block font-num font-bold uppercase text-slate-700 mb-1">Primary Practice Line</label>
+              <select id="rfpServiceInput" class="w-full border border-slate-300 px-3.5 py-2.5 text-sm bg-white">
+                <option value="Statutory Financial Audit">Statutory Financial Audit</option>
+                <option value="SOX 404 & Internal Controls">SOX 404 &amp; Internal Controls</option>
+                <option value="ESG & ISSA 5000 Assurance">ESG &amp; ISSA 5000 Assurance</option>
+                <option value="Transfer Pricing & BEPS 2.0">Transfer Pricing &amp; BEPS 2.0</option>
+                <option value="AI Governance & ISO 42001">AI Governance &amp; ISO 42001</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-num font-bold uppercase text-slate-700 mb-1">Attached Fee Estimate</label>
+              <input type="text" id="rfpFeeInput" readonly class="w-full border border-slate-200 bg-alabaster px-3.5 py-2.5 font-num font-bold text-obsidian" />
+            </div>
+          </div>
+          <div class="flex justify-between pt-2">
+            <button onclick="goRfpStep(1)" class="border border-slate-300 px-5 py-3 font-bold">← Back</button>
+            <button onclick="goRfpStep(3)" class="bg-obsidian text-white font-extrabold uppercase tracking-wider px-6 py-3">Next: Contact →</button>
+          </div>
+        </div>
+
+        <div id="rfpStep3" class="hidden space-y-4">
+          <div id="rfpFormInputs" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block font-num font-bold uppercase text-slate-700 mb-1">Executive Contact Name *</label>
+                <input type="text" id="rfpExecNameInput" placeholder="e.g., Claire Vance" class="w-full border border-slate-300 px-3.5 py-2.5 text-sm" />
+              </div>
+              <div>
+                <label class="block font-num font-bold uppercase text-slate-700 mb-1">Corporate Email *</label>
+                <input type="email" id="rfpExecEmailInput" placeholder="c.vance@enterprise.com" class="w-full border border-slate-300 px-3.5 py-2.5 text-sm" />
+              </div>
+            </div>
+            <p id="rfpErrMsg3" class="hidden text-red-600 font-bold">Please provide executive name and valid email.</p>
+            <div class="flex justify-between pt-2">
+              <button onclick="goRfpStep(2)" class="border border-slate-300 px-5 py-3 font-bold">← Back</button>
+              <button onclick="submitEnterpriseRfp()" class="bg-sovereignBright text-obsidian font-extrabold uppercase tracking-wider px-6 py-3">Submit &amp; Sync to Cloud</button>
+            </div>
+          </div>
+
+          <div id="rfpReceiptBox" class="hidden space-y-4">
+            <div class="bg-emerald-50 border-l-4 border-emerald-600 p-4 text-emerald-950">
+              <strong class="block text-sm">RFP Dossier Registered &amp; Synced</strong>
+              <span class="block mt-1">Your mandate has been saved to the Client Vault and synced to Supabase PostgreSQL (if connected).</span>
+            </div>
+            <div id="rfpReceiptSummary" class="bg-alabaster border border-slate-300 p-4 font-num space-y-1"></div>
+            <div class="flex justify-end gap-2">
+              <button onclick="closeModal('rfpModal'); openCloudDrawer('vault');" class="border border-obsidian text-obsidian font-bold px-4 py-2.5">Open Vault</button>
+              <button onclick="closeModal('rfpModal')" class="bg-obsidian text-white font-bold px-5 py-2.5">Done</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: GOVERNANCE DISCLOSURE ==================== -->
+  <div id="disclosureModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-xl border-t-4 border-obsidian shadow-2xl">
+      <div class="px-6 py-4 bg-obsidian text-white flex items-center justify-between">
+        <h3 id="discTitle" class="font-num text-xs font-bold uppercase tracking-wider">Governance Disclosure</h3>
+        <button onclick="closeModal('disclosureModal')" class="text-white/70 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <div id="discBody" class="p-6 text-xs sm:text-sm text-slate-700 leading-relaxed space-y-3"></div>
+      <div class="px-6 py-3.5 bg-alabaster border-t border-slate-200 flex justify-end">
+        <button onclick="closeModal('disclosureModal')" class="bg-obsidian text-white text-xs font-bold px-5 py-2">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden Print Container -->
+  <div id="printSurface" class="hidden"></div>
+
+  <!-- ==================== JAVASCRIPT: SUPABASE BACKEND + 10-STEP AUDIT ENGINE ==================== -->
+  <script>
+    // ==================== 1. SUPABASE CLOUD CLIENT & PERSISTENCE LAYER ====================
+    let supabaseClient = null;
+    let isCloudConnected = false;
+
+    function initSupabaseFromStorage() {
+      const savedUrl = localStorage.getItem('aurelius_sb_url') || '';
+      const savedKey = localStorage.getItem('aurelius_sb_key') || '';
+      document.getElementById('sbUrlInput').value = savedUrl;
+      document.getElementById('sbKeyInput').value = savedKey;
+
+      if (savedUrl && savedKey && window.supabase) {
+        try {
+          supabaseClient = window.supabase.createClient(savedUrl, savedKey);
+          isCloudConnected = true;
+          updateCloudStatusUI(true, savedUrl);
+          pullCloudDataOnBoot();
+        } catch (err) {
+          console.error('Supabase init error:', err);
+          updateCloudStatusUI(false);
+        }
+      } else {
+        updateCloudStatusUI(false);
+      }
+    }
+
+    function updateCloudStatusUI(connected, url = '') {
+      const dot = document.getElementById('topCloudDot');
+      const lbl = document.getElementById('topCloudLabel');
+      const heroHint = document.getElementById('heroCloudSyncHint');
+      const banner = document.getElementById('supabaseLiveBanner');
+
+      if (connected) {
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
+        lbl.textContent = 'Supabase Cloud Live';
+        heroHint.textContent = `Connected to ${url.replace('https://', '').split('.')[0]}.supabase.co`;
+        banner.className = 'p-4 border border-emerald-300 bg-emerald-50 text-emerald-950 flex items-start gap-3';
+        banner.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 text-base mt-0.5"></i><div><strong class="block">Supabase PostgreSQL &amp; Storage Bucket Live</strong><span class="block mt-0.5">All engagements, uploaded working papers, and RFPs sync automatically to your Supabase project.</span></div>`;
+      } else {
+        dot.className = 'w-2 h-2 rounded-full bg-amber-400';
+        lbl.textContent = 'Local Vault (Connect Cloud)';
+        heroHint.textContent = 'LocalStorage active • Connect Supabase for multi-device S3 file sync';
+        banner.className = 'p-4 border border-amber-300 bg-amber-50 text-amber-950 flex items-start gap-3';
+        banner.innerHTML = `<i class="fa-solid fa-circle-info text-amber-600 text-base mt-0.5"></i><div><strong class="block">Local Vault Mode Active (Browser Persistence)</strong><span class="block mt-0.5">Paste your free Supabase URL &amp; Anon Key below to enable real cloud database &amp; binary file storage.</span></div>`;
+      }
+    }
+
+    async function connectSupabaseBackend(e) {
+      e.preventDefault();
+      const url = document.getElementById('sbUrlInput').value.trim();
+      const key = document.getElementById('sbKeyInput').value.trim();
+      if (!url || !key) return;
+
+      try {
+        const client = window.supabase.createClient(url, key);
+        // Probe engagements table to verify credentials & schema
+        const { error } = await client.from('aurelius_engagements').select('id').limit(1);
+        if (error && error.code === '42P01') {
+          showToast('Connected to Supabase! Now run the SQL snippet below in your Supabase SQL Editor to create the tables.', 'warn');
+        } else if (error) {
+          throw error;
+        } else {
+          showToast('Supabase PostgreSQL & Storage Bucket verified and connected!');
+        }
+
+        supabaseClient = client;
+        isCloudConnected = true;
+        localStorage.setItem('aurelius_sb_url', url);
+        localStorage.setItem('aurelius_sb_key', key);
+        updateCloudStatusUI(true, url);
+        await syncActiveClientToCloud();
+        await pullCloudDataOnBoot();
+      } catch (err) {
+        showToast(`Connection error: ${err.message || 'Verify URL and Anon Key.'}`, 'warn');
+      }
+    }
+
+    function disconnectSupabase() {
+      localStorage.removeItem('aurelius_sb_url');
+      localStorage.removeItem('aurelius_sb_key');
+      supabaseClient = null;
+      isCloudConnected = false;
+      updateCloudStatusUI(false);
+      showToast('Disconnected Supabase. Switched to Local Vault mode.');
+    }
+
+    function copySupabaseSql() {
+      const txt = document.getElementById('supabaseSqlBlock').textContent;
+      navigator.clipboard?.writeText(txt);
+      showToast('Supabase SQL setup script copied to clipboard.');
+    }
+
+    async function syncActiveClientToCloud() {
+      persistLocalState();
+      if (!isCloudConnected || !supabaseClient) return;
+      const c = getActiveClient();
+      try {
+        await supabaseClient.from('aurelius_engagements').upsert({
+          id: c.id,
+          client_name: c.name,
+          category: c.category,
+          period: c.period,
+          industry: c.industry,
+          fee_usd: c.feeUsd,
+          payload: {
+            client: c,
+            completedSteps: completedStepsMap[c.id] || [1],
+            analysisLogs: analysisLogs
+          },
+          updated_at: new Date().toISOString()
+        });
+      } catch (e) {
+        console.warn('Cloud engagement sync skipped:', e.message);
+      }
+    }
+
+    async function pullCloudDataOnBoot() {
+      if (!isCloudConnected || !supabaseClient) return;
+      try {
+        const { data: engRows } = await supabaseClient.from('aurelius_engagements').select('*');
+        if (engRows && engRows.length) {
+          engRows.forEach(row => {
+            if (row.payload && row.payload.client) {
+              clientsMap[row.id] = row.payload.client;
+              if (row.payload.completedSteps) completedStepsMap[row.id] = row.payload.completedSteps;
+            }
+          });
+        }
+        const { data: wpRows } = await supabaseClient.from('aurelius_workpapers').select('*');
+        if (wpRows && wpRows.length) {
+          wpRows.forEach(wp => {
+            workpapersMap[`${wp.client_id}_${wp.doc_key}`] = {
+              fileName: wp.file_name,
+              size: wp.file_size || 'Cloud File',
+              timestamp: new Date(wp.uploaded_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              storageUrl: wp.storage_url || null,
+              isCloud: Boolean(wp.storage_url)
+            };
+          });
+        }
+        const { data: rfpRows } = await supabaseClient.from('aurelius_rfps').select('*');
+        if (rfpRows && rfpRows.length) {
+          rfpRows.forEach(r => {
+            if (!savedRfps.some(existing => existing.refId === r.ref_id)) {
+              savedRfps.unshift({
+                refId: r.ref_id,
+                orgName: r.org_name,
+                service: r.service_line,
+                fee: r.fee_estimate,
+                execName: r.exec_name,
+                execEmail: r.exec_email
+              });
+            }
+          });
+        }
+        renderHeroQuickClients();
+        refreshLifecycleUI();
+        updateVaultBadge();
+      } catch (e) {
+        console.warn('Initial cloud pull note:', e.message);
+      }
+    }
+
+    // ==================== 2. CURRENCY & FORMATTING ====================
+    const CURRENCIES = {
+      USD: { symbol: '$', code: 'USD', locale: 'en-US', rate: 1, taxRate: 0, heroMetric: '$482M' },
+      INR: { symbol: '₹', code: 'INR', locale: 'en-IN', rate: 84, taxRate: 0.18, heroMetric: '₹4,048 Cr' },
+      EUR: { symbol: '€', code: 'EUR', locale: 'de-DE', rate: 0.92, taxRate: 0.20, heroMetric: '€443M' }
+    };
+    let activeCurr = 'USD';
+
+    function money(usdVal, compact = false) {
+      const cfg = CURRENCIES[activeCurr];
+      const v = usdVal * cfg.rate;
+      if (compact) {
+        if (activeCurr === 'INR') {
+          if (Math.abs(v) >= 10000000) return `₹${(v / 10000000).toFixed(2)} Cr`;
+          if (Math.abs(v) >= 100000) return `₹${(v / 100000).toFixed(2)} L`;
+        } else {
+          if (Math.abs(v) >= 1000000) return `${cfg.symbol}${(v / 1000000).toFixed(2)}M`;
+          if (Math.abs(v) >= 1000) return `${cfg.symbol}${(v / 1000).toFixed(1)}K`;
+        }
+      }
+      return new Intl.NumberFormat(cfg.locale, { style: 'currency', currency: cfg.code, maximumFractionDigits: 0 }).format(Math.round(v));
+    }
+
+    function switchCurrency(code) {
+      activeCurr = code;
+      document.querySelectorAll('.curr-code').forEach(el => el.textContent = code);
+      document.getElementById('heroGlobalFeeMetric').textContent = CURRENCIES[code].heroMetric;
+      renderHeroQuickClients();
+      computeAuditFee();
+      refreshLifecycleUI();
+      showToast(`Reporting currency switched to ${code}.`);
+    }
+
+    // ==================== 3. 10-STEP AUDIT LIFECYCLE DATA & STATE ====================
+    const AUDIT_STEPS = [
+      { num: 1, code: 'ACCEPT CLIENT', sub: 'Risk & ISA 210', title: 'CLIENT ACCEPTANCE & PRE-AUDIT RISK ASSESSMENT', badge: 'PHASE 01 • ENGAGEMENT ACCEPTANCE & INDEPENDENCE', std: 'ISA 210 / IESBA', desc: 'Evaluate management integrity, IESBA independence rules, prior auditor communications, and statutory fee agreements before issuing the Engagement Letter.' },
+      { num: 2, code: 'ANNUAL REPORT', sub: 'P&L & Ratios', title: 'ANNUAL REPORT & PRELIMINARY ANALYTICAL REVIEW', badge: 'PHASE 02 • FINANCIAL STATEMENT INGESTION', std: 'ISA 520 / IFRS', desc: 'Validate Trial Balance captions, P&L margins, Balance Sheet liquidity, and year-over-year variance analytics.' },
+      { num: 3, code: 'RISK & MATERIALITY', sub: 'ISA 320 Calc', title: 'INHERENT RISK & ISA 320 MATERIALITY BENCHMARKING', badge: 'PHASE 03 • RISK & MATERIALITY CALIBRATION', std: 'ISA 315 & ISA 320', desc: 'Establish Overall Planning Materiality, Performance Materiality (65%–80%), and Clearly Trivial Thresholds alongside assertion-level risk ratings.' },
+      { num: 4, code: 'EVALUATE CONTROLS', sub: 'COSO / SOX 404', title: 'INTERNAL CONTROL EVALUATION & SOX 404 TESTING', badge: 'PHASE 04 • COSO & ITGC CONTROL MATRIX', std: 'SOX 404 / ISA 330', desc: 'Test operating effectiveness of automated ERP controls, Segregation of Duties (SoD), and IT General Controls.' },
+      { num: 5, code: 'AUDIT PROCEDURES', sub: 'Substantive Plan', title: 'SUBSTANTIVE AUDIT PROGRAM & SAMPLING DESIGN', badge: 'PHASE 05 • SUBSTANTIVE TESTING EXECUTION', std: 'ISA 330 & ISA 530', desc: 'Execute substantive tests of details across revenue cut-off, accounts receivable confirmations, and unrecorded liabilities.' },
+      { num: 6, code: 'COLLECT EVIDENCE', sub: 'GL & Benford', title: 'GENERAL LEDGER VOUCHING & BENFORD’S LAW FORENSICS', badge: 'PHASE 06 • CAATS & LEDGER ANOMALY ENGINE', std: 'ISA 500 & ISA 240', desc: 'Analyze 100% of journal entries using Benford’s Law first-digit distributions, weekend override rules, and materiality breach detection.' },
+      { num: 7, code: 'WORKPAPERS', sub: 'ISA 230 Vault', title: 'STATUTORY WORKPAPER INDEX & CLOUD EVIDENCE VAULT', badge: 'PHASE 07 • ISA 230 DOCUMENTATION BINDER', std: 'ISA 230 / ISQM 1', desc: 'Inspect and download all uploaded binary working paper files stored in Supabase Cloud Storage or Local Vault.' },
+      { num: 8, code: 'FORM OPINION', sub: 'SAD & ISA 570', title: 'EVALUATION OF MISSTATEMENTS & GOING CONCERN', badge: 'PHASE 08 • AUDIT DIFFERENCES & SOLVENCY', std: 'ISA 450 & ISA 570', desc: 'Accumulate unadjusted audit differences against Overall Materiality and evaluate 12-month Going Concern liquidity.' },
+      { num: 9, code: 'ISSUE REPORT', sub: 'ISA 700 Opinion', title: 'INDEPENDENT AUDITOR’S REPORT & KEY AUDIT MATTERS', badge: 'PHASE 09 • STATUTORY AUDIT OPINION', std: 'ISA 700 & ISA 701', desc: 'Generate and print the formal Independent Auditor’s Report incorporating Key Audit Matters (KAMs) and partner attestation.' },
+      { num: 10, code: 'COMPETENCY', sub: 'ISQM 1 EQR', title: 'ENGAGEMENT QUALITY REVIEW (EQR) & SCORECARD', badge: 'PHASE 10 • FINAL EQR INSPECTION & ARCHIVAL', std: 'ISQM 2 / PCAOB AS 1220', desc: 'Complete Engagement Quality Reviewer inspection scorecard and archive the signed audit binder.' }
+    ];
+
+    const SEED_CLIENTS = {
+      novacloud: {
+        id: 'novacloud',
+        name: 'NovaCloud Solutions Inc.',
+        category: 'FINANCIAL AUDIT',
+        period: 'FY 2025 (Ended Dec 31, 2025)',
+        industry: 'Cloud Enterprise Software',
+        feeUsd: 175000,
+        summary: 'Multi-element SaaS revenue recognition (ASC 606 / IFRS 15), capitalized R&D software, and subsidiary consolidation.',
+        riskProfile: { integrity: 'Low Risk — Verified', priorOpinion: 'Unmodified (Clean)', complexity: 'Moderate-High (SaaS)', regulatory: 'SEC / PCAOB & IFRS' },
+        signOffs: { independence: true, staffing: true, terms: true },
+        financials: { revenue: 142000000, priorRevenue: 118000000, cogs: 34000000, pbt: 21500000, totalAssets: 168000000, currAssets: 94000000, totalLiab: 62000000, currLiab: 38000000, equity: 106000000 },
+        materiality: { benchmark: 'pbt', perfPct: 75 },
+        controls: [
+          { id: 'CTL-01', area: 'ASC 606 Automated SaaS Billing & Cut-Off', owner: 'VP Revenue Ops', sample: 40, exceptions: 0, reliance: 'Rely' },
+          { id: 'CTL-02', area: 'AWS Production Access & Change Mgmt (ITGC)', owner: 'CISO', sample: 25, exceptions: 1, reliance: 'Rely w/ Extended Test' },
+          { id: 'CTL-03', area: 'Manual Journal Entry Approval > $50K', owner: 'Controller', sample: 30, exceptions: 0, reliance: 'Rely' }
+        ],
+        procedures: [
+          { id: 'PROC-01', assertion: 'Occurrence & Cut-Off', test: 'Vouch top 25 Q4 enterprise SaaS contracts to signed MSA & provisioning logs', sample: 25, checked: true },
+          { id: 'PROC-02', assertion: 'Existence & Valuation', test: 'External positive confirmation of top 20 Accounts Receivable balances', sample: 20, checked: true },
+          { id: 'PROC-03', assertion: 'Completeness', test: 'Search for unrecorded liabilities across Jan 2026 disbursements', sample: 30, checked: false }
+        ],
+        ledger: [
+          { id: 'JE-1041', date: '2025-12-12', account: 'Enterprise SaaS Revenue', desc: 'Acme Corp 3-Year Cloud License', amount: 840000, user: 'ERP-BillingBot' },
+          { id: 'JE-1042', date: '2025-12-18', account: 'AWS Cloud Hosting', desc: 'Q4 Production Cluster Settlement', amount: 412500, user: 'A. Sterling' },
+          { id: 'JE-1043', date: '2025-12-28', account: 'Offshore Advisory Fee', desc: 'Sunday Manual Year-End Accrual', amount: 1250000, user: 'R. Vance (VP)' },
+          { id: 'JE-1044', date: '2025-12-29', account: 'Capitalized R&D Software', desc: 'AI Core Engine Phase II Capitalization', amount: 695000, user: 'M. Chen' },
+          { id: 'JE-1045', date: '2025-12-30', account: 'Marketing Retainer', desc: 'Split Invoice #1 — Limit Bypass Check', amount: 99500, user: 'K. Patel' },
+          { id: 'JE-1046', date: '2025-12-31', account: 'Engineering Payroll', desc: 'December Statutory Payroll Batch', amount: 1480200, user: 'Workday-Sync' }
+        ],
+        misstatements: [
+          { id: 'SAD-01', desc: 'Unrecorded Dec cloud hosting overage', account: 'Cost of Revenue', amount: 42000, adjusted: true },
+          { id: 'SAD-02', desc: 'Cut-off variance on 2-day SaaS activation', account: 'Deferred Revenue', amount: 68000, adjusted: false }
+        ]
+      },
+      nexus: {
+        id: 'nexus',
+        name: 'Nexus Global Logistics Ltd.',
+        category: 'SOX & INTERNAL CONTROLS',
+        period: 'Q3 – Q4 2025',
+        industry: 'Global Freight & Supply Chain',
+        feeUsd: 140000,
+        summary: 'Vendor master file updates and AP disbursements for SOX 404 internal control deficiencies and fictitious vendor creation.',
+        riskProfile: { integrity: 'Moderate — Prior Auditor Disagreement', priorOpinion: 'Unmodified w/ Material Weakness', complexity: 'High (42 Hubs)', regulatory: 'SOX 404(b) / COSO' },
+        signOffs: { independence: true, staffing: true, terms: true },
+        financials: { revenue: 310000000, priorRevenue: 295000000, cogs: 224000000, pbt: 25000000, totalAssets: 280000000, currAssets: 112000000, totalLiab: 165000000, currLiab: 89000000, equity: 115000000 },
+        materiality: { benchmark: 'pbt', perfPct: 70 },
+        controls: [
+          { id: 'CTL-11', area: 'Vendor Master Bank IBAN Modification Controls', owner: 'AP Director', sample: 35, exceptions: 3, reliance: 'Do Not Rely (Deficiency)' },
+          { id: 'CTL-12', area: '3-Way PO / Freight Bill of Lading Matching', owner: 'Procurement', sample: 45, exceptions: 1, reliance: 'Rely w/ Extended Test' }
+        ],
+        procedures: [
+          { id: 'PROC-11', assertion: 'Occurrence', test: 'Cross-match Vendor Master bank IBANs against Employee Payroll accounts', sample: 100, checked: true },
+          { id: 'PROC-12', assertion: 'Accuracy', test: 'Substantive vouching of manual AP wire transfers > $100,000', sample: 40, checked: true }
+        ],
+        ledger: [
+          { id: 'JE-2011', date: '2025-11-15', account: 'Ocean Freight Charter', desc: 'Saturday Emergency Port Disbursement', amount: 1450000, user: 'AP-Supervisor' },
+          { id: 'JE-2012', date: '2025-11-18', account: 'Apex Shell Forwarding', desc: 'New Vendor Wire — Unverified Tax ID', amount: 920000, user: 'AP-Clerk-04' }
+        ],
+        misstatements: [
+          { id: 'SAD-11', desc: 'Duplicate freight payment to unapproved vendor', account: 'Freight Expense', amount: 185000, adjusted: false }
+        ]
+      },
+      horizon: {
+        id: 'horizon',
+        name: 'Horizon Health Systems',
+        category: 'IT & CYBERSECURITY AUDIT',
+        period: 'FY 2025 (Ended Dec 31, 2025)',
+        industry: 'Healthcare Networks & Clinical Data',
+        feeUsd: 210000,
+        summary: 'IT General Controls over user access provisioning, offboarding timely termination, and AWS root credentials.',
+        riskProfile: { integrity: 'Low Risk — Verified', priorOpinion: 'Unmodified (Clean)', complexity: 'High (HIPAA / ERP)', regulatory: 'HIPAA / SOC 2 / PCAOB' },
+        signOffs: { independence: true, staffing: true, terms: true },
+        financials: { revenue: 540000000, priorRevenue: 492000000, cogs: 360000000, pbt: 48000000, totalAssets: 610000000, currAssets: 215000000, totalLiab: 340000000, currLiab: 130000000, equity: 270000000 },
+        materiality: { benchmark: 'pbt', perfPct: 75 },
+        controls: [
+          { id: 'CTL-21', area: 'Terminated Employee Active Directory Revocation (<24h)', owner: 'IAM Lead', sample: 50, exceptions: 2, reliance: 'Rely w/ Extended Test' },
+          { id: 'CTL-22', area: 'AWS Production Root MFA & Privileged Bastion Logging', owner: 'VP Cloud', sample: 15, exceptions: 0, reliance: 'Rely' }
+        ],
+        procedures: [
+          { id: 'PROC-21', assertion: 'ITGC Security', test: 'Reconcile HR termination roster against Active Directory & AWS IAM logs', sample: 60, checked: true }
+        ],
+        ledger: [
+          { id: 'JE-3011', date: '2025-12-10', account: 'Medical Equipment CapEx', desc: 'MRI Diagnostic Suite Installation', amount: 2650000, user: 'Fin-Controller' }
+        ],
+        misstatements: [
+          { id: 'SAD-21', desc: 'Understated year-end patient refund accrual', account: 'Accrued Liabilities', amount: 110000, adjusted: true }
+        ]
+      },
+      ecofreight: {
+        id: 'ecofreight',
+        name: 'EcoFreight Energy Corp.',
+        category: 'ESG & COMPLIANCE',
+        period: 'FY 2025 (Ended Dec 31, 2025)',
+        industry: 'Renewable Energy & Carbon Markets',
+        feeUsd: 120000,
+        summary: 'Verify carbon offset claim integrity and double-counting risks in corporate sustainability reports under ISSA 5000.',
+        riskProfile: { integrity: 'Low-Moderate Risk', priorOpinion: 'Limited Assurance', complexity: 'High (Scope 1/2/3)', regulatory: 'ISSA 5000 / CSRD / BRSR' },
+        signOffs: { independence: true, staffing: true, terms: true },
+        financials: { revenue: 195000000, priorRevenue: 162000000, cogs: 118000000, pbt: 28000000, totalAssets: 340000000, currAssets: 95000000, totalLiab: 190000000, currLiab: 64000000, equity: 150000000 },
+        materiality: { benchmark: 'pbt', perfPct: 75 },
+        controls: [
+          { id: 'CTL-31', area: 'Verra / Gold Standard Carbon Credit Serial Retirement Check', owner: 'Head of ESG', sample: 30, exceptions: 1, reliance: 'Rely w/ Extended Test' }
+        ],
+        procedures: [
+          { id: 'PROC-31', assertion: 'Existence & Rights', test: 'Confirm serial numbers of retired carbon offsets with public registries', sample: 40, checked: true }
+        ],
+        ledger: [
+          { id: 'JE-4011', date: '2025-12-14', account: 'Carbon Offset Inventory', desc: 'Amazon Reforestation VCU Tranche', amount: 1100000, user: 'ESG-Finance' }
+        ],
+        misstatements: [
+          { id: 'SAD-31', desc: 'Double-counted Tier-2 Scope 3 offset credit', account: 'ESG Note 4', amount: 55000, adjusted: false }
+        ]
+      }
+    };
+
+    const STEP_CHECKLISTS = {
+      1: [
+        { key: 'isa210_letter', title: 'SIGNED ENGAGEMENT LETTER (ISA 210)', desc: 'Executed engagement letter confirming scope, management responsibilities, and statutory fee terms.' },
+        { key: 'iesba_decl', title: 'INDEPENDENCE DECLARATION (IESBA)', desc: 'Partner and engagement team conflict clearance & IESBA Code of Ethics sign-off.' },
+        { key: 'prior_auditor', title: 'PRIOR AUDITOR COMMUNICATION MEMORANDUM', desc: 'ISA 300 / ISQC 1 predecessor auditor inquiry & professional clearance memo.' }
+      ],
+      2: [
+        { key: 'trial_bal', title: 'AUDITED TRIAL BALANCE & P&L EXTRACT (ISA 520)', desc: 'Management-certified Trial Balance mapped to statutory financial statement captions.' },
+        { key: 'draft_ar', title: 'BOARD-APPROVED DRAFT ANNUAL REPORT', desc: 'Draft Balance Sheet, Cash Flow Statement, and Accounting Policy disclosures.' }
+      ],
+      3: [
+        { key: 'isa320_wp', title: 'ISA 320 MATERIALITY BENCHMARK WORKPAPER', desc: 'Documented rationale for benchmark selection, performance materiality, and CTT.' },
+        { key: 'isa315_risk', title: 'ISA 315 INHERENT & FRAUD RISK MATRIX', desc: 'Assertion-level risk assessment and significant risk identification schedule.' }
+      ],
+      4: [
+        { key: 'coso_rcm', title: 'COSO / SOX 404 RISK CONTROL MATRIX (RCM)', desc: 'Key preventive & detective controls mapped to financial statement assertions.' },
+        { key: 'itgc_log', title: 'IT GENERAL CONTROLS (ITGC) WALKTHROUGH LOG', desc: 'Access provisioning, change management, and automated ERP control evidence.' }
+      ],
+      5: [
+        { key: 'isa330_prog', title: 'ISA 330 SUBSTANTIVE AUDIT PROGRAM', desc: 'Partner-approved substantive testing plan and ISA 530 sample size sheets.' }
+      ],
+      6: [
+        { key: 'gl_extract', title: 'FULL-POPULATION GENERAL LEDGER EXTRACT (CSV/ERP)', desc: 'Complete journal entry dump for Benford’s Law and CAATs anomaly testing.' },
+        { key: 'bank_conf', title: 'EXTERNAL BANK & AR CONFIRMATION PACKET', desc: 'Third-party confirmations supporting cash and material receivables.' }
+      ],
+      7: [
+        { key: 'isa230_idx', title: 'ISA 230 MASTER WORKPAPER INDEX & SIGN-OFF LOG', desc: 'Cross-referenced binder index verified by Engagement Manager and Partner.' }
+      ],
+      8: [
+        { key: 'isa450_sad', title: 'ISA 450 SUMMARY OF AUDIT DIFFERENCES (SAD)', desc: 'Schedule of unadjusted misstatements evaluated against Performance Materiality.' },
+        { key: 'isa570_gc', title: 'ISA 570 GOING CONCERN CASH-FLOW FORECAST', desc: '12-month liquidity stress test and debt covenant compliance certificate.' }
+      ],
+      9: [
+        { key: 'isa580_rep', title: 'SIGNED MANAGEMENT REPRESENTATION LETTER (ISA 580)', desc: 'Written representations from CEO and CFO prior to opinion issuance.' }
+      ],
+      10: [
+        { key: 'isqm2_eqr', title: 'ENGAGEMENT QUALITY REVIEWER (EQR) CLEARANCE', desc: 'ISQM 2 independent partner sign-off prior to statutory archival.' }
+      ]
+    };
+
+    // Hydrate state from localStorage
+    let clientsMap = JSON.parse(localStorage.getItem('aurelius_clients_v2') || 'null') || JSON.parse(JSON.stringify(SEED_CLIENTS));
+    let activeClientId = localStorage.getItem('aurelius_active_client') || 'novacloud';
+    if (!clientsMap[activeClientId]) activeClientId = Object.keys(clientsMap)[0];
+    let activeStepNum = 1;
+    let completedStepsMap = JSON.parse(localStorage.getItem('aurelius_completed_steps') || '{"novacloud":[1]}');
+    let workpapersMap = JSON.parse(localStorage.getItem('aurelius_workpapers_v2') || '{}');
+    let customStepDocsMap = JSON.parse(localStorage.getItem('aurelius_custom_docs_v2') || '{}');
+    let analysisLogs = JSON.parse(localStorage.getItem('aurelius_analysis_logs') || '{}');
+    let savedEstimates = JSON.parse(localStorage.getItem('aurelius_vault_estimates') || '[]');
+    let savedRfps = JSON.parse(localStorage.getItem('aurelius_vault_rfps') || '[]');
+    let pendingUploadMeta = null;
+
+    function persistLocalState() {
+      localStorage.setItem('aurelius_clients_v2', JSON.stringify(clientsMap));
+      localStorage.setItem('aurelius_active_client', activeClientId);
+      localStorage.setItem('aurelius_completed_steps', JSON.stringify(completedStepsMap));
+      localStorage.setItem('aurelius_workpapers_v2', JSON.stringify(workpapersMap));
+      localStorage.setItem('aurelius_custom_docs_v2', JSON.stringify(customStepDocsMap));
+      localStorage.setItem('aurelius_analysis_logs', JSON.stringify(analysisLogs));
+      localStorage.setItem('aurelius_vault_estimates', JSON.stringify(savedEstimates));
+      localStorage.setItem('aurelius_vault_rfps', JSON.stringify(savedRfps));
+      updateVaultBadge();
+    }
+
+    function getActiveClient() {
+      return clientsMap[activeClientId];
+    }
+
+    function getWorkDonePct(cid = activeClientId) {
+      const done = (completedStepsMap[cid] || []).length;
+      const docs = Object.keys(workpapersMap).filter(k => k.startsWith(`${cid}_`)).length;
+      return Math.min(100, Math.max(15, Math.round((done / 10) * 85 + Math.min(15, docs * 2))));
+    }
+
+    // ==================== 4. HERO QUICK LAUNCHER & ENGINE MODE SWITCHING ====================
+    function renderHeroQuickClients() {
+      const box = document.getElementById('heroClientQuickList');
+      box.innerHTML = Object.values(clientsMap).slice(0, 4).map(c => {
+        const isCurrent = c.id === activeClientId;
+        return `
+          <button onclick="loadEngagementClient('${c.id}')" class="w-full text-left px-6 py-3.5 hover:bg-alabaster transition flex items-center justify-between gap-3 ${isCurrent ? 'bg-amber-50/60 border-l-4 border-sovereignBright' : ''}">
+            <div class="min-w-0">
+              <div class="flex items-center gap-2">
+                <span class="font-num text-[10px] font-bold uppercase text-sovereign">${c.category}</span>
+                ${isCurrent ? '<span class="font-num text-[9px] font-extrabold bg-obsidian text-white px-1.5 py-0.2">ACTIVE</span>' : ''}
+              </div>
+              <p class="text-xs sm:text-sm font-extrabold text-obsidian truncate mt-0.5">${c.name}</p>
+              <p class="font-num text-[11px] text-slate-500 truncate">${c.period}</p>
+            </div>
+            <div class="text-right shrink-0">
+              <span class="font-num text-xs font-extrabold text-obsidian block">${money(c.feeUsd)}</span>
+              <span class="font-num text-[10px] text-cobalt font-bold">Open File →</span>
+            </div>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function setEngineMode(mode) {
+      const isLife = mode === 'lifecycle';
+      document.getElementById('enginePanelLifecycle').classList.toggle('hidden', !isLife);
+      document.getElementById('enginePanelCalculator').classList.toggle('hidden', isLife);
+
+      document.getElementById('tabBtnLifecycle').className = isLife
+        ? 'px-5 py-3 text-xs font-extrabold uppercase tracking-wider bg-obsidian text-white flex items-center gap-2 transition'
+        : 'px-5 py-3 text-xs font-extrabold uppercase tracking-wider text-obsidian hover:bg-slate-100 flex items-center gap-2 transition';
+
+      document.getElementById('tabBtnCalculator').className = !isLife
+        ? 'px-5 py-3 text-xs font-extrabold uppercase tracking-wider bg-obsidian text-white flex items-center gap-2 transition'
+        : 'px-5 py-3 text-xs font-extrabold uppercase tracking-wider text-obsidian hover:bg-slate-100 flex items-center gap-2 transition';
+
+      if (isLife) refreshLifecycleUI();
+      else computeAuditFee();
+    }
+
+    function loadEngagementClient(cid) {
+      if (!clientsMap[cid]) return;
+      activeClientId = cid;
+      activeStepNum = 1;
+      persistLocalState();
+      renderHeroQuickClients();
+      setEngineMode('lifecycle');
+      document.getElementById('assurance-engine').scrollIntoView({ behavior: 'smooth' });
+      showToast(`Loaded audit engagement: ${clientsMap[cid].name}`);
+    }
+
+    function jumpToStep(stepNum) {
+      activeStepNum = stepNum;
+      setEngineMode('lifecycle');
+      document.getElementById('assurance-engine').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // ==================== 5. REFRESH 10-STEP LIFECYCLE UI ====================
+    function refreshLifecycleUI() {
+      const c = getActiveClient();
+      const pct = getWorkDonePct();
+
+      document.getElementById('ribbonClientName').textContent = c.name;
+      document.getElementById('ribbonCompletionPct').textContent = `${pct}%`;
+      document.getElementById('stepperProgressTag').textContent = `${pct}%`;
+
+      document.getElementById('bannerClientHeading').textContent = c.name.toUpperCase();
+      document.getElementById('bannerCategoryBadge').textContent = c.category;
+      document.getElementById('bannerClientMeta').textContent = `Period: ${c.period}  |  Sector: ${c.industry}  |  Fee: ${money(c.feeUsd)}`;
+
+      // Render 10-Step Horizontal Track
+      const doneList = completedStepsMap[activeClientId] || [];
+      document.getElementById('lifecycleStepperTrack').innerHTML = AUDIT_STEPS.map(st => {
+        const isCurrent = st.num === activeStepNum;
+        const isDone = doneList.includes(st.num);
+        let boxCls = 'border-slate-200 bg-alabaster text-slate-700 hover:border-obsidian';
+        let badgeCls = 'bg-slate-200 text-slate-800';
+        if (isCurrent) {
+          boxCls = 'border-obsidian bg-obsidian text-white shadow-md';
+          badgeCls = 'bg-sovereignBright text-obsidian';
+        } else if (isDone) {
+          boxCls = 'border-emerald-600 bg-emerald-50/70 text-emerald-950';
+          badgeCls = 'bg-emerald-600 text-white';
+        }
+        return `
+          <button onclick="goStep(${st.num})" class="shrink-0 min-w-[152px] text-left border-2 p-2.5 transition flex items-start gap-2.5 ${boxCls}">
+            <span class="w-6 h-6 font-num text-xs font-extrabold flex items-center justify-center shrink-0 ${badgeCls}">
+              ${isDone && !isCurrent ? '<i class="fa-solid fa-check text-[10px]"></i>' : st.num}
+            </span>
+            <div class="min-w-0">
+              <span class="block font-num text-[11px] font-extrabold truncate">${st.code}</span>
+              <span class="block text-[10px] opacity-80 truncate mt-0.5">${st.sub}</span>
+            </div>
+          </button>
+        `;
+      }).join('');
+
+      // Inter-step data transfer summary
+      const summaries = {
+        1: `Approved engagement status for ${c.name}, ISA 210 / IESBA preconditions verified, fee: ${money(c.feeUsd)}.`,
+        2: `Validated FY Financial Statements: Revenue ${money(c.financials.revenue, true)}, Pre-Tax Income ${money(c.financials.pbt, true)}.`,
+        3: `ISA 320 Materiality thresholds locked & assertion-level inherent risks mapped to Control Testing.`,
+        4: `COSO / SOX 404 control reliance conclusions calibrated for substantive sample sizing.`,
+        5: `ISA 330 substantive audit procedures executed; exception samples routed to GL Forensics.`,
+        6: `Full-population General Ledger CAATs & Benford's Law evidence compiled for ISA 230 Binder.`,
+        7: `ISA 230 workpaper vault schedules indexed; audit differences carried forward to Opinion Formulation.`,
+        8: `ISA 450 Summary of Audit Differences & ISA 570 Going Concern solvency verified.`,
+        9: `Signed Independent Auditor's Report (ISA 700) transmitted to Engagement Quality Reviewer.`,
+        10: `ISQM 1 / EQR quality inspection completed. Complete audit binder ready for archival.`
+      };
+      document.getElementById('interStepDataSummary').textContent = summaries[activeStepNum] || '';
+
+      const nextSt = AUDIT_STEPS.find(s => s.num === activeStepNum + 1);
+      const ctaBtn = document.getElementById('advanceStepCta');
+      const ctaTxt = document.getElementById('advanceStepCtaText');
+      if (nextSt) {
+        ctaTxt.textContent = `Proceed → ${nextSt.code}`;
+        ctaBtn.onclick = () => advanceLifecycleStep();
+      } else {
+        ctaTxt.textContent = 'Sync & Export Final Binder';
+        ctaBtn.onclick = () => syncAndExportAuditBinder();
+      }
+
+      document.getElementById('stepperPrevBtn').disabled = activeStepNum === 1;
+      document.getElementById('stepperPrevBtn').classList.toggle('opacity-40', activeStepNum === 1);
+
+      renderStepWorkspaceHtml();
+    }
+
+    function goStep(n) {
+      activeStepNum = Math.max(1, Math.min(10, n));
+      refreshLifecycleUI();
+    }
+    function stepLifecycle(delta) {
+      goStep(activeStepNum + delta);
+    }
+    function advanceLifecycleStep() {
+      const arr = completedStepsMap[activeClientId] || [];
+      if (!arr.includes(activeStepNum)) {
+        arr.push(activeStepNum);
+        completedStepsMap[activeClientId] = arr;
+      }
+      syncActiveClientToCloud();
+      if (activeStepNum < 10) {
+        activeStepNum++;
+        refreshLifecycleUI();
+        showToast(`Phase ${activeStepNum - 1} signed off. Advanced to Phase ${activeStepNum}.`);
+      } else {
+        refreshLifecycleUI();
+        showToast('All 10 statutory audit phases completed and synced!');
+      }
+    }
+
+    // ==================== 6. WORKING PAPERS UPLOAD (SUPABASE STORAGE + LOCAL FALLBACK) ====================
+    function getDocsForStep(stepNum) {
+      const base = STEP_CHECKLISTS[stepNum] || [];
+      const customs = customStepDocsMap[`${activeClientId}_${stepNum}`] || [];
+      return [...base, ...customs];
+    }
+
+    function getStepAttachmentStats(stepNum) {
+      const list = getDocsForStep(stepNum);
+      let count = 0;
+      list.forEach(d => { if (workpapersMap[`${activeClientId}_${d.key}`]) count++; });
+      return { count, total: list.length };
+    }
+
+    function triggerDocFilePicker(docKey, docTitle) {
+      pendingUploadMeta = { docKey, docTitle, stepNum: activeStepNum };
+      document.getElementById('binaryFilePicker').value = '';
+      document.getElementById('binaryFilePicker').click();
+    }
+
+    function initiateCustomFileUpload() {
+      pendingUploadMeta = { docKey: null, docTitle: 'Custom Working Paper', stepNum: activeStepNum };
+      document.getElementById('binaryFilePicker').value = '';
+      document.getElementById('binaryFilePicker').click();
+    }
+
+    async function handleBinaryFileSelected(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const stepNum = pendingUploadMeta?.stepNum || activeStepNum;
+      let docKey = pendingUploadMeta?.docKey;
+      const sizeStr = `${Math.max(8, Math.round(file.size / 1024))} KB`;
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      if (!docKey) {
+        docKey = `custom_${Date.now()}`;
+        const listKey = `${activeClientId}_${stepNum}`;
+        if (!customStepDocsMap[listKey]) customStepDocsMap[listKey] = [];
+        customStepDocsMap[listKey].push({
+          key: docKey,
+          title: `CUSTOM SCHEDULE: ${file.name.toUpperCase()}`,
+          desc: `Uploaded supporting schedule attached to Phase ${stepNum}.`
+        });
+      }
+
+      let storageUrl = null;
+      let isCloud = false;
+
+      // Upload real binary file to Supabase Storage bucket if connected
+      if (isCloudConnected && supabaseClient) {
+        showToast(`Uploading "${file.name}" to Supabase Storage...`);
+        const filePath = `${activeClientId}/step-${stepNum}/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+        try {
+          const { error: upErr } = await supabaseClient.storage.from('audit-workpapers').upload(filePath, file, { upsert: true });
+          if (upErr) throw upErr;
+          const { data: pubData } = supabaseClient.storage.from('audit-workpapers').getPublicUrl(filePath);
+          storageUrl = pubData?.publicUrl || null;
+          isCloud = Boolean(storageUrl);
+
+          await supabaseClient.from('aurelius_workpapers').upsert({
+            id: `${activeClientId}_${docKey}`,
+            client_id: activeClientId,
+            step_num: stepNum,
+            doc_key: docKey,
+            file_name: file.name,
+            file_size: sizeStr,
+            storage_url: storageUrl,
+            uploaded_at: new Date().toISOString()
+          });
+        } catch (err) {
+          showToast(`Cloud upload fallback to local: ${err.message}`, 'warn');
+        }
+      }
+
+      workpapersMap[`${activeClientId}_${docKey}`] = {
+        fileName: file.name,
+        size: sizeStr,
+        timestamp: timeStr,
+        storageUrl,
+        isCloud
+      };
+
+      persistLocalState();
+      refreshLifecycleUI();
+      showToast(isCloud ? `Uploaded "${file.name}" to Supabase Cloud Storage!` : `Attached "${file.name}" to Phase ${stepNum} Vault.`);
+    }
+
+    async function attachSignedTemplateDoc(docKey, docTitle) {
+      const slug = getActiveClient().name.replace(/[^a-zA-Z0-9]/g, '_');
+      const fileName = `${slug}_${docKey.toUpperCase()}_Verified.pdf`;
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      workpapersMap[`${activeClientId}_${docKey}`] = {
+        fileName,
+        size: '340 KB',
+        timestamp: timeStr,
+        storageUrl: null,
+        isCloud: isCloudConnected
+      };
+
+      if (isCloudConnected && supabaseClient) {
+        try {
+          await supabaseClient.from('aurelius_workpapers').upsert({
+            id: `${activeClientId}_${docKey}`,
+            client_id: activeClientId,
+            step_num: activeStepNum,
+            doc_key: docKey,
+            file_name: fileName,
+            file_size: '340 KB',
+            storage_url: null,
+            uploaded_at: new Date().toISOString()
+          });
+        } catch (e) { /* silent fallback */ }
+      }
+
+      persistLocalState();
+      refreshLifecycleUI();
+      showToast(`Attached template: ${fileName}`);
+    }
+
+    function removeWorkingDoc(docKey) {
+      delete workpapersMap[`${activeClientId}_${docKey}`];
+      persistLocalState();
+      refreshLifecycleUI();
+      showToast('Working paper removed from checklist.');
+    }
+
+    function executeStepIsaRulesEngine() {
+      const { count } = getStepAttachmentStats(activeStepNum);
+      if (count === 0) {
+        showToast('Evidence Gate Locked: Attach at least 1 required working paper below before running ISA Rules Analysis.', 'warn');
+        return;
+      }
+      const c = getActiveClient();
+      const st = AUDIT_STEPS.find(s => s.num === activeStepNum);
+      const diagnostics = {
+        1: `<strong>ISA 210 &amp; IESBA Preconditions Verified:</strong> Engagement terms (${money(c.feeUsd)}) and independence declarations cleared for <strong>${c.name}</strong>.`,
+        2: `<strong>ISA 520 Analytical Review Passed:</strong> Revenue growth of <strong>${(((c.financials.revenue - c.financials.priorRevenue) / Math.max(1, c.financials.priorRevenue)) * 100).toFixed(1)}%</strong> validated against Balance Sheet working capital.`,
+        3: `<strong>ISA 315 &amp; ISA 320 Thresholds Locked:</strong> Planning materiality and fraud risk assertions calibrated.`,
+        4: `<strong>COSO / SOX 404 Control Matrix Evaluated:</strong> Control exceptions mapped to substantive sample sizing.`,
+        5: `<strong>ISA 330 Substantive Program Validated:</strong> Audit procedures cover 100% of material assertions.`,
+        6: `<strong>ISA 500 &amp; Benford’s Law CAATs Complete:</strong> Full General Ledger population scanned for weekend overrides and split-invoice anomalies.`,
+        7: `<strong>ISA 230 Documentation Check Passed:</strong> All uploaded schedules indexed and cross-referenced.`,
+        8: `<strong>ISA 450 &amp; ISA 570 Synthesis Complete:</strong> Unadjusted differences evaluated against Overall Materiality.`,
+        9: `<strong>ISA 700 Statutory Opinion Ready:</strong> Independent Auditor's Report &amp; Key Audit Matters formatted.`,
+        10: `<strong>ISQM 1 / EQR Final Clearance Passed:</strong> Engagement Quality Reviewer sign-off recorded.`
+      };
+      analysisLogs[`${activeClientId}_${activeStepNum}`] = diagnostics[activeStepNum];
+
+      const done = completedStepsMap[activeClientId] || [];
+      if (!done.includes(activeStepNum)) {
+        done.push(activeStepNum);
+        completedStepsMap[activeClientId] = done;
+      }
+      syncActiveClientToCloud();
+      refreshLifecycleUI();
+      showToast(`ISA Rules Engine diagnostics completed for Phase ${activeStepNum} (${st.std}).`);
+    }
+
+    // ==================== 7. RENDER ACTIVE STEP CANVAS (STEPS 1–10) ====================
+    function renderStepWorkspaceHtml() {
+      const st = AUDIT_STEPS.find(s => s.num === activeStepNum);
+      const c = getActiveClient();
+      const docs = getDocsForStep(activeStepNum);
+      const { count, total } = getStepAttachmentStats(activeStepNum);
+      const diagHtml = analysisLogs[`${activeClientId}_${activeStepNum}`];
+
+      const checklistBlock = `
+        <div class="bg-white border border-slate-300 p-6 space-y-5 mt-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
+            <div class="flex items-start gap-3">
+              <div class="w-9 h-9 bg-obsidian text-amber-400 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-folder-open"></i>
+              </div>
+              <div>
+                <h4 class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-obsidian">Required Audit Files &amp; ISA Rules Analysis Gate</h4>
+                <p class="text-xs text-slate-500 mt-0.5">Upload real PDF/CSV/Excel working papers (stored in Supabase Cloud Storage when connected) or attach signed templates.</p>
+              </div>
+            </div>
+            <button onclick="initiateCustomFileUpload()" class="shrink-0 bg-obsidian hover:bg-midnight text-white font-num text-xs font-bold px-4 py-2.5 transition">
+              + Upload Custom Schedule
+            </button>
+          </div>
+
+          <div class="flex items-center justify-between bg-alabaster px-4 py-2.5 border border-slate-200">
+            <span class="font-num text-xs font-extrabold uppercase text-obsidian">Phase ${activeStepNum} Working Papers Checklist:</span>
+            <span class="font-num text-xs font-extrabold px-2.5 py-0.5 border ${count === total && total > 0 ? 'bg-emerald-50 text-emerald-800 border-emerald-300' : count > 0 ? 'bg-amber-50 text-amber-800 border-amber-300' : 'bg-red-50 text-red-700 border-red-300'}">
+              ${count} of ${total} Attached
+            </span>
+          </div>
+
+          <div class="space-y-3">
+            ${docs.map(d => {
+              const rec = workpapersMap[`${activeClientId}_${d.key}`];
+              return `
+                <div class="border ${rec ? 'border-emerald-300 bg-emerald-50/25' : 'border-slate-200 bg-white'} p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div class="flex items-start gap-3">
+                    <div class="mt-0.5">${rec ? '<i class="fa-solid fa-circle-check text-emerald-600 text-base"></i>' : '<i class="fa-regular fa-clock text-amber-600 text-base"></i>'}</div>
+                    <div>
+                      <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-xs font-extrabold text-obsidian">${d.title}</span>
+                        ${rec
+                          ? `<span class="font-num text-[10px] font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 px-2 py-0.5">✓ ${rec.fileName} (${rec.size}) ${rec.isCloud ? '• CLOUD' : ''}</span>`
+                          : `<span class="font-num text-[10px] font-bold bg-red-50 text-red-700 border border-red-200 px-2 py-0.5">✕ NOT ATTACHED</span>`}
+                      </div>
+                      <p class="text-xs text-slate-500 mt-1">${rec ? `Verified in binder at ${rec.timestamp}` : d.desc}</p>
+                    </div>
+                  </div>
+                  <div class="flex flex-wrap items-center gap-2 shrink-0">
+                    ${rec ? `
+                      ${rec.storageUrl ? `<a href="${rec.storageUrl}" target="_blank" rel="noopener" class="border border-cobalt text-cobalt hover:bg-blue-50 font-num text-xs font-bold px-3 py-2">Download Cloud File</a>` : ''}
+                      <button onclick="removeWorkingDoc('${d.key}')" class="border border-slate-300 text-slate-600 hover:text-red-700 text-xs font-bold px-3 py-2">Remove</button>
+                    ` : `
+                      <button onclick="attachSignedTemplateDoc('${d.key}', '${d.title.replace(/'/g, "\\'")}')" class="border border-obsidian text-obsidian hover:bg-slate-100 text-xs font-bold px-3 py-2">Use Template</button>
+                      <button onclick="triggerDocFilePicker('${d.key}', '${d.title.replace(/'/g, "\\'")}')" class="bg-sovereignBright hover:bg-amber-500 text-obsidian text-xs font-extrabold uppercase px-4 py-2">+ Upload File</button>
+                    `}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+
+          ${count === 0 ? `
+            <div class="bg-amber-50 border border-amber-300 p-4 flex items-start gap-3 text-xs text-amber-950">
+              <i class="fa-solid fa-triangle-exclamation text-amber-600 text-base mt-0.5"></i>
+              <div>
+                <strong>Attachment Required to Unlock ISA Rules Diagnostics:</strong>
+                <span class="block mt-0.5">Attach at least 1 required working paper above using "+ Upload File" or "Use Template".</span>
+              </div>
+            </div>
+          ` : `
+            <div class="bg-alabaster border-l-4 border-obsidian border border-slate-300 p-5 space-y-3">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <span class="font-num text-xs font-extrabold uppercase text-obsidian">Evidence Gate Unlocked (${count}/${total} Verified)</span>
+                <button onclick="executeStepIsaRulesEngine()" class="bg-obsidian hover:bg-midnight text-white text-xs font-extrabold uppercase tracking-wider px-5 py-2.5">
+                  Run ISA Rules Analysis
+                </button>
+              </div>
+              ${diagHtml ? `<div class="bg-white border border-slate-200 p-4 text-xs text-slate-800 leading-relaxed">${diagHtml}</div>` : ''}
+            </div>
+          `}
+        </div>
+      `;
+
+      document.getElementById('activeStepCanvas').innerHTML = `
+        <div class="bg-white border border-slate-300 p-6 sm:p-8">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-200 pb-6 mb-6">
+            <div class="space-y-2 max-w-3xl">
+              <span class="inline-block font-num text-[11px] font-bold uppercase tracking-widest bg-alabaster border border-slate-300 text-sovereign px-3 py-1">${st.badge}</span>
+              <h3 class="font-editorial text-2xl sm:text-3xl font-semibold text-obsidian">${st.title}</h3>
+              <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">${st.desc}</p>
+            </div>
+            <div class="bg-alabaster border-l-4 border-sovereignBright border border-slate-200 p-4 shrink-0 min-w-[230px]">
+              <span class="block font-num text-[10px] font-bold uppercase text-slate-500">Active Engagement</span>
+              <strong class="block text-sm font-extrabold text-obsidian mt-1">${c.name}</strong>
+              <span class="block font-num text-xs text-slate-600 mt-0.5">${c.industry} • ${money(c.feeUsd)}</span>
+            </div>
+          </div>
+
+          ${buildStepBodyHtml(activeStepNum, c)}
+        </div>
+
+        ${checklistBlock}
+      `;
+    }
+
+    function buildStepBodyHtml(stepNum, c) {
+      if (stepNum === 1) {
+        return `
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div class="lg:col-span-5 space-y-3">
+              <div class="flex items-center justify-between">
+                <h4 class="font-num text-xs font-extrabold uppercase text-obsidian">Select Corporate Audit Client</h4>
+                <button onclick="openNewEngagementModal()" class="bg-sovereignBright text-obsidian font-num text-[11px] font-extrabold px-3 py-1">+ Audit Any Firm</button>
+              </div>
+              <div class="space-y-2.5 max-h-[480px] overflow-y-auto pr-1">
+                ${Object.values(clientsMap).map(item => {
+                  const sel = item.id === activeClientId;
+                  return `
+                    <div onclick="loadEngagementClient('${item.id}')" class="cursor-pointer border-2 ${sel ? 'border-obsidian bg-alabaster' : 'border-slate-200 hover:border-sovereignBright'} p-3.5 transition">
+                      <div class="flex justify-between font-num text-[10px] mb-1">
+                        <span class="font-bold text-sovereign">${item.category}</span>
+                        <span class="text-slate-500">${item.period}</span>
+                      </div>
+                      <h5 class="text-sm font-extrabold text-obsidian">${item.name}</h5>
+                      <p class="text-xs text-slate-600 mt-1 line-clamp-2">${item.summary}</p>
+                      <div class="flex justify-between items-center border-t border-slate-200 mt-2.5 pt-2 text-xs font-num">
+                        <span class="text-slate-500">Fee:</span>
+                        <strong class="text-obsidian">${money(item.feeUsd)}</strong>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+
+            <div class="lg:col-span-7 space-y-5">
+              <div class="bg-alabaster border border-slate-200 p-5 space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-300 pb-2.5">
+                  <h4 class="font-num text-xs font-extrabold uppercase text-obsidian">Client Risk Profile &amp; Independence Screening</h4>
+                  <span class="font-num text-[10px] font-bold bg-white border border-obsidian px-2 py-0.5">ISA 210</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div class="bg-white border border-slate-200 p-3">
+                    <span class="block font-num text-[10px] text-slate-500 uppercase">Management Integrity</span>
+                    <strong class="text-obsidian mt-0.5 block">${c.riskProfile.integrity}</strong>
+                  </div>
+                  <div class="bg-white border border-slate-200 p-3">
+                    <span class="block font-num text-[10px] text-slate-500 uppercase">Prior Period Opinion</span>
+                    <strong class="text-obsidian mt-0.5 block">${c.riskProfile.priorOpinion}</strong>
+                  </div>
+                  <div class="bg-white border border-slate-200 p-3">
+                    <span class="block font-num text-[10px] text-slate-500 uppercase">Complexity</span>
+                    <strong class="text-obsidian mt-0.5 block">${c.riskProfile.complexity}</strong>
+                  </div>
+                  <div class="bg-white border border-slate-200 p-3">
+                    <span class="block font-num text-[10px] text-slate-500 uppercase">Applicable Standards</span>
+                    <strong class="text-cobalt mt-0.5 block">${c.riskProfile.regulatory}</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div class="border border-slate-200 p-5 space-y-3">
+                <h4 class="font-num text-xs font-extrabold uppercase text-obsidian">Mandatory Partner Sign-Off Checklist</h4>
+                <label class="flex items-start gap-3 p-3 bg-alabaster border border-slate-200 cursor-pointer">
+                  <input type="checkbox" ${c.signOffs.independence ? 'checked' : ''} onchange="toggleSignOff('independence', this.checked)" class="mt-0.5 accent-obsidian" />
+                  <div class="text-xs">
+                    <strong class="block text-obsidian">Independence &amp; Ethics Verified (IESBA Code)</strong>
+                    <span class="text-slate-600">No prohibited non-audit services or partner conflict interests identified.</span>
+                  </div>
+                </label>
+                <label class="flex items-start gap-3 p-3 bg-alabaster border border-slate-200 cursor-pointer">
+                  <input type="checkbox" ${c.signOffs.staffing ? 'checked' : ''} onchange="toggleSignOff('staffing', this.checked)" class="mt-0.5 accent-obsidian" />
+                  <div class="text-xs">
+                    <strong class="block text-obsidian">Engagement Partner &amp; Specialist Staffing Allocated</strong>
+                    <span class="text-slate-600">Lead Audit Partner, ITGC Specialist, and EQR Partner assigned.</span>
+                  </div>
+                </label>
+                <label class="flex items-start gap-3 p-3 bg-alabaster border border-slate-200 cursor-pointer">
+                  <input type="checkbox" ${c.signOffs.terms ? 'checked' : ''} onchange="toggleSignOff('terms', this.checked)" class="mt-0.5 accent-obsidian" />
+                  <div class="text-xs">
+                    <strong class="block text-obsidian">Engagement Letter Terms Agreed (ISA 210)</strong>
+                    <span class="text-slate-600">Management acknowledges responsibility for financial statements and ICFR.</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      if (stepNum === 2) {
+        const f = c.financials;
+        const growth = (((f.revenue - f.priorRevenue) / Math.max(1, f.priorRevenue)) * 100).toFixed(1);
+        const grossMargin = (((f.revenue - f.cogs) / Math.max(1, f.revenue)) * 100).toFixed(1);
+        const currRatio = (f.currAssets / Math.max(1, f.currLiab)).toFixed(2);
+        const deRatio = (f.totalLiab / Math.max(1, f.equity)).toFixed(2);
+        return `
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4 bg-alabaster p-5 border border-slate-200 text-xs">
+              <div><label class="block font-num font-bold text-slate-700 mb-1">Current Revenue (USD)</label><input type="number" value="${f.revenue}" onchange="editFin('revenue', this.value)" class="w-full bg-white border border-slate-300 px-3 py-2 font-num font-bold" /></div>
+              <div><label class="block font-num font-bold text-slate-700 mb-1">Prior Year Revenue (USD)</label><input type="number" value="${f.priorRevenue}" onchange="editFin('priorRevenue', this.value)" class="w-full bg-white border border-slate-300 px-3 py-2 font-num" /></div>
+              <div><label class="block font-num font-bold text-slate-700 mb-1">Cost of Sales (USD)</label><input type="number" value="${f.cogs}" onchange="editFin('cogs', this.value)" class="w-full bg-white border border-slate-300 px-3 py-2 font-num" /></div>
+              <div><label class="block font-num font-bold text-slate-700 mb-1">Pre-Tax Income / PBT (USD)</label><input type="number" value="${f.pbt}" onchange="editFin('pbt', this.value)" class="w-full bg-white border border-slate-300 px-3 py-2 font-num font-bold text-obsidian" /></div>
+              <div><label class="block font-num font-bold text-slate-700 mb-1">Total Assets (USD)</label><input type="number" value="${f.totalAssets}" onchange="editFin('totalAssets', this.value)" class="w-full bg-white border border-slate-300 px-3 py-2 font-num font-bold" /></div>
+              <div><label class="block font-num font-bold text-slate-700 mb-1">Current Assets (USD)</label><input type="number" value="${f.currAssets}" onchange="editFin('currAssets', this.value)" class="w-full bg-white border border-slate-300 px-3 py-2 font-num" /></div>
+              <div><label class="block font-num font-bold text-slate-700 mb-1">Total Liabilities (USD)</label><input type="number" value="${f.totalLiab}" onchange="editFin('totalLiab', this.value)" class="w-full bg-white border border-slate-300 px-3 py-2 font-num" /></div>
+              <div><label class="block font-num font-bold text-slate-700 mb-1">Current Liabilities (USD)</label><input type="number" value="${f.currLiab}" onchange="editFin('currLiab', this.value)" class="w-full bg-white border border-slate-300 px-3 py-2 font-num" /></div>
+            </div>
+            <div class="lg:col-span-5 bg-obsidian text-white p-6 border-t-4 border-sovereignBright space-y-4">
+              <span class="font-num text-xs font-bold uppercase text-amber-400 block">ISA 520 Preliminary Analytical Ratios</span>
+              <div class="grid grid-cols-2 gap-3">
+                <div class="bg-white/5 border border-white/15 p-3"><span class="font-num text-[10px] text-slate-400 block">YoY Revenue Growth</span><strong class="font-num text-lg text-amber-400">+${growth}%</strong></div>
+                <div class="bg-white/5 border border-white/15 p-3"><span class="font-num text-[10px] text-slate-400 block">Gross Margin</span><strong class="font-num text-lg text-white">${grossMargin}%</strong></div>
+                <div class="bg-white/5 border border-white/15 p-3"><span class="font-num text-[10px] text-slate-400 block">Current Ratio</span><strong class="font-num text-lg text-emerald-400">${currRatio}x</strong></div>
+                <div class="bg-white/5 border border-white/15 p-3"><span class="font-num text-[10px] text-slate-400 block">Debt / Equity</span><strong class="font-num text-lg text-white">${deRatio}x</strong></div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      if (stepNum === 3) {
+        const f = c.financials;
+        const m = c.materiality;
+        let overall = f.pbt * 0.05;
+        if (m.benchmark === 'revenue') overall = f.revenue * 0.01;
+        if (m.benchmark === 'assets') overall = f.totalAssets * 0.015;
+        overall = Math.max(50000, overall);
+        const perf = overall * (m.perfPct / 100);
+        const ctt = overall * 0.05;
+        return `
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div class="lg:col-span-6 space-y-4">
+              <div class="bg-alabaster border border-slate-200 p-5 space-y-4 text-xs">
+                <div>
+                  <label class="block font-num font-bold uppercase text-slate-700 mb-1.5">ISA 320 Benchmark Basis</label>
+                  <select onchange="editMat('benchmark', this.value)" class="w-full bg-white border border-slate-300 px-3 py-2.5 font-bold">
+                    <option value="pbt" ${m.benchmark === 'pbt' ? 'selected' : ''}>5.0% of Normalized Pre-Tax Income (${money(f.pbt)})</option>
+                    <option value="revenue" ${m.benchmark === 'revenue' ? 'selected' : ''}>1.0% of Gross Revenue (${money(f.revenue)})</option>
+                    <option value="assets" ${m.benchmark === 'assets' ? 'selected' : ''}>1.5% of Total Assets (${money(f.totalAssets)})</option>
+                  </select>
+                </div>
+                <div>
+                  <div class="flex justify-between font-num font-bold mb-1"><span>Performance Materiality Haircut</span><span class="text-obsidian">${m.perfPct}%</span></div>
+                  <input type="range" min="65" max="80" value="${m.perfPct}" oninput="editMat('perfPct', parseInt(this.value,10))" class="w-full accent-obsidian" />
+                </div>
+              </div>
+              <div class="grid grid-cols-3 gap-3">
+                <div class="bg-obsidian text-white p-3.5"><span class="font-num text-[10px] text-slate-300 block">OVERALL MAT.</span><strong class="font-num text-sm sm:text-base mt-1 block">${money(overall)}</strong></div>
+                <div class="bg-midnight text-white p-3.5"><span class="font-num text-[10px] text-amber-300 block">PERF. MAT.</span><strong class="font-num text-sm sm:text-base text-amber-400 mt-1 block">${money(perf)}</strong></div>
+                <div class="bg-alabaster border border-slate-300 p-3.5"><span class="font-num text-[10px] text-slate-600 block">TRIVIAL (CTT)</span><strong class="font-num text-sm sm:text-base text-obsidian mt-1 block">${money(ctt)}</strong></div>
+              </div>
+            </div>
+            <div class="lg:col-span-6 border border-slate-200 overflow-hidden text-xs">
+              <table class="min-w-full divide-y divide-slate-200">
+                <thead class="bg-obsidian text-white font-num"><tr><th class="px-3 py-2.5 text-left">Assertion Area</th><th class="px-3 py-2.5 text-left">ISA 315 Risk</th></tr></thead>
+                <tbody class="divide-y divide-slate-200 bg-white">
+                  <tr><td class="px-3 py-2.5 font-bold">Revenue Recognition &amp; Cut-Off</td><td class="px-3 py-2.5 text-red-700 font-bold">Significant Risk (ISA 240)</td></tr>
+                  <tr><td class="px-3 py-2.5 font-bold">Manual Journal Entry Override</td><td class="px-3 py-2.5 text-red-700 font-bold">Significant Risk (ISA 240.31)</td></tr>
+                  <tr><td class="px-3 py-2.5 font-bold">Accounts Payable &amp; Vendor Master</td><td class="px-3 py-2.5 text-amber-700 font-bold">Elevated Risk</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      }
+
+      if (stepNum === 4) {
+        return `
+          <div class="overflow-x-auto border border-slate-200 text-xs">
+            <table class="min-w-full divide-y divide-slate-200">
+              <thead class="bg-obsidian text-white font-num uppercase">
+                <tr><th class="px-3.5 py-3 text-left">ID</th><th class="px-3.5 py-3 text-left">COSO / ITGC Control</th><th class="px-3.5 py-3 text-center">Sample</th><th class="px-3.5 py-3 text-center">Exceptions</th><th class="px-3.5 py-3 text-left">Reliance Conclusion</th></tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200 bg-white">
+                ${c.controls.map((ctl, idx) => `
+                  <tr>
+                    <td class="px-3.5 py-3 font-num font-bold text-obsidian">${ctl.id}</td>
+                    <td class="px-3.5 py-3 font-bold">${ctl.area}<div class="text-slate-500 font-normal">Owner: ${ctl.owner}</div></td>
+                    <td class="px-3.5 py-3 text-center font-num">${ctl.sample}</td>
+                    <td class="px-3.5 py-3 text-center"><input type="number" min="0" max="20" value="${ctl.exceptions}" onchange="editCtlExc(${idx}, this.value)" class="w-16 text-center border border-slate-300 py-1 font-num font-bold" /></td>
+                    <td class="px-3.5 py-3"><span class="font-num px-2.5 py-1 border font-bold text-[11px] ${ctl.exceptions >= 2 ? 'bg-red-100 text-red-800 border-red-300' : ctl.exceptions === 1 ? 'bg-amber-100 text-amber-800 border-amber-300' : 'bg-emerald-50 text-emerald-800 border-emerald-300'}">${ctl.reliance}</span></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      if (stepNum === 5) {
+        return `
+          <div class="space-y-3">
+            ${c.procedures.map((p, idx) => `
+              <label class="flex items-center justify-between gap-4 border border-slate-200 bg-alabaster p-4 cursor-pointer">
+                <div class="flex items-start gap-3">
+                  <input type="checkbox" ${p.checked ? 'checked' : ''} onchange="toggleProc(${idx}, this.checked)" class="mt-1 accent-obsidian" />
+                  <div class="text-xs">
+                    <span class="font-num font-bold text-obsidian">${p.id} • ${p.assertion}</span>
+                    <strong class="block text-sm text-slate-900 mt-0.5">${p.test}</strong>
+                  </div>
+                </div>
+                <span class="font-num text-xs font-bold bg-white border border-slate-300 px-3 py-1 shrink-0">Sample: ${p.sample}</span>
+              </label>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      if (stepNum === 6) {
+        const benfordChart = renderBenfordDistribution(c.ledger);
+        const perfMat = Math.max(50000, c.financials.pbt * 0.05) * (c.materiality.perfPct / 100);
+        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        return `
+          <div class="space-y-6">
+            ${benfordChart}
+            <form onsubmit="postNewLedgerVoucher(event)" class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 bg-alabaster p-4 border border-slate-200 text-xs">
+              <input type="date" id="glNewDate" value="2025-12-28" required class="sm:col-span-2 bg-white border border-slate-300 px-2.5 py-2 font-num" />
+              <input type="text" id="glNewAcct" placeholder="Account Head" required class="sm:col-span-3 bg-white border border-slate-300 px-2.5 py-2" />
+              <input type="text" id="glNewDesc" placeholder="Journal Description" required class="sm:col-span-3 bg-white border border-slate-300 px-2.5 py-2" />
+              <input type="number" id="glNewAmt" placeholder="Amount (USD)" required min="1" class="sm:col-span-2 bg-white border border-slate-300 px-2.5 py-2 font-num" />
+              <button type="submit" class="sm:col-span-2 bg-obsidian text-white font-extrabold uppercase px-3 py-2">+ Post Voucher</button>
+            </form>
+            <div class="overflow-x-auto border border-slate-200 text-xs">
+              <table class="min-w-full divide-y divide-slate-200">
+                <thead class="bg-obsidian text-white font-num uppercase">
+                  <tr><th class="px-3 py-2.5 text-left">Voucher</th><th class="px-3 py-2.5 text-left">Date</th><th class="px-3 py-2.5 text-left">Account &amp; Narration</th><th class="px-3 py-2.5 text-right">Amount</th><th class="px-3 py-2.5 text-left">CAATs Flag</th></tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200 bg-white">
+                  ${c.ledger.map(r => {
+                    const dt = new Date(r.date + 'T00:00:00');
+                    const isWknd = dt.getDay() === 0 || dt.getDay() === 6;
+                    const isMat = r.amount >= perfMat;
+                    const flags = [];
+                    if (isMat) flags.push('Materiality Breach (ISA 320)');
+                    if (isWknd) flags.push('Weekend Override (ISA 240)');
+                    return `
+                      <tr class="${flags.length ? 'bg-red-50/40' : ''}">
+                        <td class="px-3 py-2.5 font-num font-bold text-obsidian">${r.id}</td>
+                        <td class="px-3 py-2.5 font-num text-slate-600">${r.date} (${days[dt.getDay()]})</td>
+                        <td class="px-3 py-2.5"><strong>${r.account}</strong><div class="text-slate-500">${r.desc}</div></td>
+                        <td class="px-3 py-2.5 text-right font-num font-bold">${money(r.amount)}</td>
+                        <td class="px-3 py-2.5">${flags.length ? flags.map(fl => `<span class="inline-block bg-red-100 text-red-800 border border-red-300 px-2 py-0.5 text-[10px] font-bold mr-1">${fl}</span>`).join('') : '<span class="text-emerald-700 font-bold">✓ Verified</span>'}</td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      }
+
+      if (stepNum === 7) {
+        const files = Object.entries(workpapersMap).filter(([k]) => k.startsWith(`${activeClientId}_`));
+        return `
+          <div class="space-y-4">
+            <div class="flex justify-between items-center">
+              <h4 class="font-num text-xs font-extrabold uppercase text-obsidian">ISA 230 Assembled Evidence Vault (${files.length} Files)</h4>
+              <button onclick="syncAndExportAuditBinder()" class="bg-obsidian text-white font-num text-xs font-bold px-4 py-2">Export JSON Binder</button>
+            </div>
+            ${files.length === 0 ? `<p class="text-xs text-slate-500 bg-alabaster p-4 border border-slate-200">No files uploaded yet. Upload working papers in any step to populate your ISA 230 vault.</p>` : `
+              <div class="border border-slate-200 divide-y divide-slate-200 text-xs">
+                ${files.map(([k, v], i) => `
+                  <div class="p-3.5 flex flex-wrap items-center justify-between gap-2 bg-white">
+                    <div><span class="font-num font-bold text-sovereign mr-2">WP-${101 + i}</span><strong>${v.fileName}</strong></div>
+                    <div class="flex items-center gap-3">
+                      <span class="font-num text-slate-500">${v.size} • ${v.timestamp}</span>
+                      ${v.storageUrl ? `<a href="${v.storageUrl}" target="_blank" rel="noopener" class="text-cobalt font-bold underline">Download Cloud File</a>` : ''}
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            `}
+          </div>
+        `;
+      }
+
+      if (stepNum === 8) {
+        const unadj = c.misstatements.filter(m => !m.adjusted).reduce((s, m) => s + m.amount, 0);
+        const overall = Math.max(50000, c.financials.pbt * 0.05);
+        return `
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 text-xs">
+            <div class="lg:col-span-7 border border-slate-200 overflow-hidden">
+              <table class="min-w-full divide-y divide-slate-200">
+                <thead class="bg-obsidian text-white font-num"><tr><th class="px-3 py-2.5 text-left">Ref</th><th class="px-3 py-2.5 text-left">Audit Difference</th><th class="px-3 py-2.5 text-right">Amount</th><th class="px-3 py-2.5 text-center">Adjusted?</th></tr></thead>
+                <tbody class="divide-y divide-slate-200 bg-white">
+                  ${c.misstatements.map((m, idx) => `
+                    <tr>
+                      <td class="px-3 py-2.5 font-num font-bold">${m.id}</td>
+                      <td class="px-3 py-2.5"><strong>${m.desc}</strong><div class="text-slate-500">${m.account}</div></td>
+                      <td class="px-3 py-2.5 text-right font-num font-bold">${money(m.amount)}</td>
+                      <td class="px-3 py-2.5 text-center"><input type="checkbox" ${m.adjusted ? 'checked' : ''} onchange="toggleSadAdj(${idx}, this.checked)" class="accent-obsidian" /></td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+            <div class="lg:col-span-5 bg-alabaster border border-slate-300 p-5 space-y-3">
+              <h4 class="font-num font-extrabold uppercase text-obsidian">ISA 450 &amp; ISA 570 Opinion Synthesis</h4>
+              <div class="flex justify-between border-b border-slate-200 pb-1.5"><span>Unadjusted Differences:</span><strong class="font-num">${money(unadj)}</strong></div>
+              <div class="flex justify-between border-b border-slate-200 pb-1.5"><span>ISA 320 Overall Materiality:</span><strong class="font-num">${money(overall)}</strong></div>
+              <div class="p-3 font-bold ${unadj > overall ? 'bg-red-100 text-red-900 border border-red-300' : 'bg-emerald-50 text-emerald-900 border border-emerald-300'}">
+                ${unadj > overall ? 'QUALIFIED OPINION REQUIRED: Unadjusted errors exceed Overall Materiality.' : 'UNMODIFIED ("CLEAN") OPINION SUPPORTED.'}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      if (stepNum === 9) {
+        const unadj = c.misstatements.filter(m => !m.adjusted).reduce((s, m) => s + m.amount, 0);
+        const overall = Math.max(50000, c.financials.pbt * 0.05);
+        const qual = unadj > overall;
+        return `
+          <div class="space-y-4">
+            <div class="flex justify-between items-center">
+              <h4 class="font-num text-xs font-extrabold uppercase text-obsidian">ISA 700 Independent Auditor’s Report</h4>
+              <button onclick="printTarget('isa700PrintBox')" class="bg-obsidian text-white text-xs font-bold px-4 py-2"><i class="fa-solid fa-print mr-1.5"></i>Print Statutory Opinion</button>
+            </div>
+            <div id="isa700PrintBox" class="bg-alabaster border-2 border-slate-300 p-6 sm:p-8 space-y-4 font-editorial text-sm text-slate-800 leading-relaxed">
+              <div class="border-b-2 border-obsidian pb-3 flex justify-between items-center font-sans">
+                <div><strong class="text-lg font-extrabold text-obsidian">INDEPENDENT AUDITOR’S REPORT</strong><span class="block text-xs text-slate-500">To the Shareholders &amp; Audit Committee of ${c.name}</span></div>
+                <span class="font-num text-xs font-bold bg-white border border-slate-300 px-3 py-1">ISA 700 / ISA 701</span>
+              </div>
+              <p><strong>${qual ? 'Qualified Opinion' : 'Unmodified Opinion'}:</strong> We have audited the financial statements of <strong>${c.name}</strong> for <strong>${c.period}</strong> in accordance with International Standards on Auditing (ISAs).</p>
+              <p>${qual ? `Except for the effects of unadjusted misstatements totaling ${money(unadj)}, the financial statements present fairly, in all material respects, the financial position of ${c.name}.` : `In our opinion, the accompanying financial statements present fairly, in all material respects, the financial position of ${c.name} as at the end of ${c.period}, in accordance with ${c.riskProfile.regulatory}.`}</p>
+              <p><strong>Key Audit Matters (ISA 701):</strong> Revenue recognition (${money(c.financials.revenue)}) and automated ERP internal controls were tested via substantive sampling and full-population GL CAATs forensics.</p>
+              <div class="pt-4 border-t border-slate-300 font-sans text-xs flex justify-between">
+                <div><strong>For AURELIUS GLOBAL LLP</strong><br/>Chartered Accountants &amp; Certified Public Accountants</div>
+                <div class="text-right font-num">Engagement Partner: Dr. Kavita Subramanian<br/>PCAOB / UDIN Ref: AUR-2026-88410</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      const pct = getWorkDonePct();
+      return `
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="bg-obsidian text-white p-6 border-t-4 border-sovereignBright">
+            <span class="font-num text-xs uppercase font-bold text-amber-400">ISQM 1 Quality Score</span>
+            <p class="font-num text-4xl font-extrabold mt-2">${Math.min(100, pct + 10)} / 100</p>
+            <p class="text-xs text-slate-300 mt-2">Engagement Quality Reviewer (EQR) Sign-Off Complete</p>
+          </div>
+          <div class="bg-alabaster border border-slate-300 p-6 space-y-1.5 text-xs">
+            <h5 class="font-num font-extrabold uppercase text-obsidian">Statutory Audit Trail</h5>
+            <p>✓ ISA 210 &amp; IESBA Independence Cleared</p>
+            <p>✓ ISA 320 Materiality &amp; ISA 315 Risk Matrix</p>
+            <p>✓ Benford's Law Full-Population GL Scan</p>
+            <p>✓ ISA 700 Independent Auditor's Report Issued</p>
+          </div>
+          <div class="bg-white border border-slate-300 p-6 flex flex-col justify-between">
+            <div>
+              <h5 class="font-num text-xs font-extrabold uppercase text-obsidian">Cloud Sync &amp; Archival</h5>
+              <p class="text-xs text-slate-600 mt-1">Push complete engagement binder to Supabase PostgreSQL &amp; download JSON archive.</p>
+            </div>
+            <button onclick="syncAndExportAuditBinder()" class="mt-4 w-full bg-obsidian hover:bg-midnight text-white text-xs font-extrabold uppercase py-3">Sync &amp; Download Binder</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderBenfordDistribution(rows) {
+      const expected = { 1: 30.1, 2: 17.6, 3: 12.5, 4: 9.7, 5: 7.9, 6: 6.7, 7: 5.8, 8: 5.1, 9: 4.6 };
+      const counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 };
+      let n = 0;
+      rows.forEach(r => {
+        const digits = Math.abs(r.amount).toString().replace(/[^1-9]/g, '');
+        if (digits) { counts[parseInt(digits[0], 10)]++; n++; }
+      });
+      let cols = '';
+      for (let d = 1; d <= 9; d++) {
+        const act = n > 0 ? (counts[d] / n) * 100 : 0;
+        cols += `
+          <div class="text-center">
+            <div class="h-20 bg-white border border-slate-200 flex items-end justify-center gap-1 p-1">
+              <div class="w-2.5 bg-obsidian" style="height:${Math.min(100, act * 2.2)}%" title="Actual: ${act.toFixed(1)}%"></div>
+              <div class="w-2.5 bg-sovereignBright" style="height:${Math.min(100, expected[d] * 2.2)}%" title="Benford: ${expected[d]}%"></div>
+            </div>
+            <span class="block font-num text-[10px] font-bold mt-1">D${d}</span>
+            <span class="block font-num text-[9px] text-slate-500">${act.toFixed(0)}%</span>
+          </div>
+        `;
+      }
+      return `
+        <div class="bg-alabaster border border-slate-200 p-4">
+          <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
+            <span class="font-num text-xs font-extrabold uppercase text-obsidian">Benford's Law First-Digit Distribution (${n} Vouchers)</span>
+            <div class="flex items-center gap-3 text-[11px]">
+              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 bg-obsidian inline-block"></span> Actual %</span>
+              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 bg-sovereignBright inline-block"></span> Expected %</span>
+            </div>
+          </div>
+          <div class="grid grid-cols-9 gap-2">${cols}</div>
+        </div>
+      `;
+    }
+
+    // Inline mutators
+    function toggleSignOff(k, v) { getActiveClient().signOffs[k] = v; syncActiveClientToCloud(); }
+    function editFin(k, v) { getActiveClient().financials[k] = parseFloat(v) || 0; syncActiveClientToCloud(); refreshLifecycleUI(); }
+    function editMat(k, v) { getActiveClient().materiality[k] = v; syncActiveClientToCloud(); refreshLifecycleUI(); }
+    function editCtlExc(i, v) {
+      const exc = Math.max(0, parseInt(v, 10) || 0);
+      const ctl = getActiveClient().controls[i];
+      ctl.exceptions = exc;
+      ctl.reliance = exc >= 2 ? 'Do Not Rely (Deficiency)' : exc === 1 ? 'Rely w/ Extended Test' : 'Rely';
+      syncActiveClientToCloud();
+      refreshLifecycleUI();
+    }
+    function toggleProc(i, v) { getActiveClient().procedures[i].checked = v; syncActiveClientToCloud(); refreshLifecycleUI(); }
+    function toggleSadAdj(i, v) { getActiveClient().misstatements[i].adjusted = v; syncActiveClientToCloud(); refreshLifecycleUI(); }
+    function postNewLedgerVoucher(e) {
+      e.preventDefault();
+      getActiveClient().ledger.unshift({
+        id: `JE-${Math.floor(5000 + Math.random() * 4000)}`,
+        date: document.getElementById('glNewDate').value,
+        account: document.getElementById('glNewAcct').value.trim(),
+        desc: document.getElementById('glNewDesc').value.trim(),
+        amount: parseFloat(document.getElementById('glNewAmt').value),
+        user: 'Auditor-Entry'
+      });
+      syncActiveClientToCloud();
+      refreshLifecycleUI();
+      showToast('Ledger voucher posted & analyzed.');
+    }
+
+    // ==================== 8. CONFIG, NEW ENGAGEMENT, KB & CLOUD BINDER EXPORT ====================
+    function openConfigModal() {
+      const c = getActiveClient();
+      document.getElementById('cfgNameInput').value = c.name;
+      document.getElementById('cfgTypeInput').value = c.category;
+      document.getElementById('cfgPeriodInput').value = c.period;
+      document.getElementById('cfgSectorInput').value = c.industry;
+      document.getElementById('cfgFeeInput').value = c.feeUsd;
+      document.getElementById('configModal').classList.remove('hidden');
+    }
+
+    function applyProjectConfig(e) {
+      e.preventDefault();
+      const c = getActiveClient();
+      c.name = document.getElementById('cfgNameInput').value.trim();
+      c.category = document.getElementById('cfgTypeInput').value;
+      c.period = document.getElementById('cfgPeriodInput').value.trim();
+      c.industry = document.getElementById('cfgSectorInput').value.trim();
+      c.feeUsd = parseFloat(document.getElementById('cfgFeeInput').value) || c.feeUsd;
+      closeModal('configModal');
+      syncActiveClientToCloud();
+      renderHeroQuickClients();
+      refreshLifecycleUI();
+      showToast(`Project updated & synced: ${c.name}`);
+    }
+
+    function openNewEngagementModal() {
+      document.getElementById('modalClientCards').innerHTML = Object.values(clientsMap).map(c => `
+        <button onclick="loadEngagementClient('${c.id}'); closeModal('newEngagementModal');" class="text-left border ${c.id === activeClientId ? 'border-obsidian bg-alabaster' : 'border-slate-200 hover:border-sovereignBright'} p-3 transition">
+          <span class="font-num text-[10px] font-bold text-sovereign uppercase block">${c.category}</span>
+          <strong class="text-xs font-extrabold text-obsidian block">${c.name}</strong>
+          <span class="font-num text-[11px] text-slate-500">${c.period} • ${money(c.feeUsd)}</span>
+        </button>
+      `).join('');
+      document.getElementById('newEngagementModal').classList.remove('hidden');
+    }
+
+    function createNewClientEngagement(e) {
+      e.preventDefault();
+      const name = document.getElementById('newEntityName').value.trim();
+      const category = document.getElementById('newEntityType').value;
+      const industry = document.getElementById('newEntitySector').value.trim();
+      const period = document.getElementById('newEntityPeriod').value.trim();
+      const rev = parseFloat(document.getElementById('newEntityRev').value) || 200000000;
+      const feeUsd = parseFloat(document.getElementById('newEntityFee').value) || 195000;
+
+      const id = `eng_${Date.now()}`;
+      clientsMap[id] = {
+        id,
+        name,
+        category,
+        period,
+        industry,
+        feeUsd,
+        summary: `Statutory assurance engagement for ${name} across ${category.toLowerCase()} and full-population GL forensics.`,
+        riskProfile: { integrity: 'Low Risk — Verified', priorOpinion: 'Initial Audit Engagement', complexity: 'Multi-Entity Corporate', regulatory: 'IFRS / ISA / SOX 404' },
+        signOffs: { independence: true, staffing: true, terms: true },
+        financials: { revenue: rev, priorRevenue: Math.round(rev * 0.89), cogs: Math.round(rev * 0.54), pbt: Math.round(rev * 0.14), totalAssets: Math.round(rev * 1.15), currAssets: Math.round(rev * 0.52), totalLiab: Math.round(rev * 0.48), currLiab: Math.round(rev * 0.26), equity: Math.round(rev * 0.67) },
+        materiality: { benchmark: 'pbt', perfPct: 75 },
+        controls: [{ id: 'CTL-01', area: 'Core Revenue & ERP Financial Close Controls', owner: 'Controller', sample: 30, exceptions: 0, reliance: 'Rely' }],
+        procedures: [{ id: 'PROC-01', assertion: 'Occurrence & Cut-Off', test: 'Substantive revenue & balance sheet vouching', sample: 25, checked: false }],
+        ledger: [{ id: 'JE-8001', date: '2026-12-18', account: 'Operating Revenue', desc: 'Q4 Enterprise Billing', amount: Math.round(rev * 0.01), user: 'ERP-Sync' }],
+        misstatements: []
+      };
+
+      activeClientId = id;
+      activeStepNum = 1;
+      completedStepsMap[id] = [1];
+      closeModal('newEngagementModal');
+      syncActiveClientToCloud();
+      renderHeroQuickClients();
+      setEngineMode('lifecycle');
+      showToast(`Initialized & synced engagement: ${name}`);
+    }
+
+    async function syncAndExportAuditBinder() {
+      await syncActiveClientToCloud();
+      const c = getActiveClient();
+      const bundle = {
+        exportedAt: new Date().toISOString(),
+        cloudBackend: isCloudConnected ? 'Supabase PostgreSQL + Storage' : 'Local Vault',
+        engagement: c,
+        completedSteps: completedStepsMap[activeClientId] || [1],
+        workpapers: Object.entries(workpapersMap).filter(([k]) => k.startsWith(`${activeClientId}_`)),
+        isaDiagnostics: analysisLogs
+      };
+      const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Aurelius-AuditBinder-${c.name.replace(/[^a-zA-Z0-9]/g, '_')}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast(isCloudConnected ? 'Synced to Supabase Cloud & downloaded JSON Audit Binder!' : 'Saved locally & downloaded JSON Audit Binder.');
+    }
+
+    // ==================== 9. MODE 2: AUDIT FEE & MATERIALITY CALCULATOR ====================
+    let feeState = { revenue: 125000000, overallMat: 925000, perfMat: 693750, cttMat: 46250, totalFeeUsd: 175000, totalHours: 580, weeks: 7, scopes: ['Statutory Financial Audit', 'Integrated SOX 404 / ICFR'] };
+
+    function syncRevFromSlider() { document.getElementById('calcRevInput').value = document.getElementById('calcRevSlider').value; computeAuditFee(); }
+    function syncRevFromBox() {
+      const v = Math.max(0, parseFloat(document.getElementById('calcRevInput').value) || 0);
+      document.getElementById('calcRevSlider').value = Math.min(1000000000, v);
+      computeAuditFee();
+    }
+
+    function computeAuditFee() {
+      const ent = document.getElementById('calcEntityClass').value;
+      const sec = document.getElementById('calcSectorRisk').value;
+      const rev = Math.max(500000, parseFloat(document.getElementById('calcRevInput').value) || 0);
+      const assets = Math.max(500000, parseFloat(document.getElementById('calcAssetsInput').value) || 0);
+      const pbt = parseFloat(document.getElementById('calcPbtInput').value) || 0;
+      const subs = parseInt(document.getElementById('calcEntitiesSlider').value, 10) || 1;
+      const erp = document.getElementById('calcErpControl').value;
+
+      const s1 = document.getElementById('chkScopeStat').checked;
+      const s2 = document.getElementById('chkScopeSox').checked;
+      const s3 = document.getElementById('chkScopeEsg').checked;
+      const s4 = document.getElementById('chkScopeTp').checked;
+
+      document.getElementById('calcRevDisplay').textContent = `${money(rev)} (${money(rev, true)})`;
+      document.getElementById('calcEntitiesLabel').textContent = `${subs} ${subs === 1 ? 'Entity' : 'Entities'}`;
+
+      let overall = pbt > 0 ? pbt * 0.05 : rev * 0.008;
+      let tag = pbt > 0 ? '5.0% of PBT' : '0.8% of Revenue';
+      if (ent === 'financial') { overall = assets * 0.0075; tag = '0.75% of Assets'; }
+      overall = Math.max(25000, overall);
+      const perf = overall * 0.75;
+      const ctt = overall * 0.05;
+
+      const scale = Math.max(1, Math.log10(Math.max(1000000, rev + assets)) - 5.2);
+      const eMult = { listed: 1.25, private: 1.0, financial: 1.35, multinational: 1.30 }[ent] || 1.0;
+      const sMult = { financial: 1.35, tech: 1.15, energy: 1.25, logistics: 1.10 }[sec] || 1.0;
+      const cMult = { automated: 0.95, hybrid: 1.15, manual: 1.40 }[erp] || 1.0;
+      const subMult = 1 + (subs - 1) * 0.08;
+
+      const base = 160 * scale * eMult * sMult * cMult * subMult;
+      let hrs = 0;
+      const scopes = [];
+      if (s1) { hrs += base * 0.65; scopes.push('Statutory Financial Audit'); }
+      if (s2) { hrs += base * 0.30; scopes.push('Integrated SOX 404 / ICFR'); }
+      if (s3) { hrs += base * 0.20; scopes.push('ESG & Carbon Assurance'); }
+      if (s4) { hrs += base * 0.18; scopes.push('Transfer Pricing & BEPS 2.0'); }
+      if (!hrs) { hrs = base * 0.5; scopes.push('Agreed-Upon Procedures'); }
+
+      const totalHrs = Math.round(hrs);
+      const pHrs = Math.round(totalHrs * 0.10);
+      const mHrs = Math.round(totalHrs * 0.20);
+      const spHrs = Math.round(totalHrs * 0.20);
+      const stHrs = totalHrs - pHrs - mHrs - spHrs;
+
+      const feeUsd = (pHrs * 550 + mHrs * 360 + stHrs * 210 + spHrs * 310) * (1 + CURRENCIES[activeCurr].taxRate);
+      const weeks = Math.max(2, Math.min(24, Math.ceil(totalHrs / 80)));
+
+      feeState = { revenue: rev, overallMat: overall, perfMat: perf, cttMat: ctt, totalFeeUsd: feeUsd, totalHours: totalHrs, weeks, scopes };
+
+      document.getElementById('outMatBenchTag').textContent = tag;
+      document.getElementById('outOverallMat').textContent = money(overall);
+      document.getElementById('outPerfMat').textContent = money(perf);
+      document.getElementById('outCttMat').textContent = money(ctt);
+      document.getElementById('outTotalFee').textContent = money(feeUsd);
+      document.getElementById('outTotalHrs').textContent = `${totalHrs.toLocaleString()} Hrs`;
+      document.getElementById('outTimelineWeeks').textContent = `${weeks} Weeks`;
+      document.getElementById('outPartnerHrs').textContent = `${pHrs} hrs • ${money(pHrs * 550)}`;
+      document.getElementById('outManagerHrs').textContent = `${mHrs} hrs • ${money(mHrs * 360)}`;
+      document.getElementById('outStaffHrs').textContent = `${stHrs} hrs • ${money(stHrs * 210)}`;
+      document.getElementById('outSpecHrs').textContent = `${spHrs} hrs • ${money(spHrs * 310)}`;
+    }
+
+    function resetCalculatorInputs() {
+      document.getElementById('calcEntityClass').value = 'listed';
+      document.getElementById('calcSectorRisk').value = 'tech';
+      document.getElementById('calcRevInput').value = 125000000;
+      document.getElementById('calcRevSlider').value = 125000000;
+      document.getElementById('calcAssetsInput').value = 98000000;
+      document.getElementById('calcPbtInput').value = 18500000;
+      document.getElementById('calcEntitiesSlider').value = 4;
+      document.getElementById('calcErpControl').value = 'hybrid';
+      document.getElementById('chkScopeStat').checked = true;
+      document.getElementById('chkScopeSox').checked = true;
+      document.getElementById('chkScopeEsg').checked = false;
+      document.getElementById('chkScopeTp').checked = false;
+      computeAuditFee();
+    }
+
+    function convertFeeEstimateToProject() {
+      const id = `scoped_${Date.now()}`;
+      const rev = feeState.revenue;
+      clientsMap[id] = {
+        id,
+        name: 'Scoped Enterprise Client Corp.',
+        category: feeState.scopes[0]?.toUpperCase() || 'FINANCIAL AUDIT',
+        period: 'FY 2026 (Ended Dec 31, 2026)',
+        industry: 'Multi-Entity Enterprise',
+        feeUsd: Math.round(feeState.totalFeeUsd),
+        summary: `Initialized from Aurelius Fee Calculator (${feeState.totalHours} Hrs / ${feeState.weeks} Weeks).`,
+        riskProfile: { integrity: 'Low Risk — Verified', priorOpinion: 'Unmodified (Clean)', complexity: 'Enterprise Configured Scope', regulatory: 'IFRS / ISA / SOX 404' },
+        signOffs: { independence: true, staffing: true, terms: true },
+        financials: { revenue: rev, priorRevenue: Math.round(rev * 0.9), cogs: Math.round(rev * 0.55), pbt: Math.round(rev * 0.15), totalAssets: Math.round(rev * 1.1), currAssets: Math.round(rev * 0.5), totalLiab: Math.round(rev * 0.45), currLiab: Math.round(rev * 0.25), equity: Math.round(rev * 0.65) },
+        materiality: { benchmark: 'pbt', perfPct: 75 },
+        controls: [{ id: 'CTL-01', area: 'Core Financial Close & ERP Controls', owner: 'Controller', sample: 30, exceptions: 0, reliance: 'Rely' }],
+        procedures: [{ id: 'PROC-01', assertion: 'Occurrence & Cut-Off', test: 'Substantive revenue & balance sheet vouching', sample: 25, checked: false }],
+        ledger: [{ id: 'JE-7001', date: '2026-12-20', account: 'Enterprise Revenue', desc: 'Q4 Statutory Billing', amount: Math.round(rev * 0.01), user: 'ERP-Sync' }],
+        misstatements: []
+      };
+      activeClientId = id;
+      activeStepNum = 1;
+      completedStepsMap[id] = [1];
+      syncActiveClientToCloud();
+      renderHeroQuickClients();
+      setEngineMode('lifecycle');
+      showToast('Estimate launched as active 10-step audit engagement!');
+    }
+
+    function saveEstimateToVault() {
+      savedEstimates.unshift({
+        id: `EST-${Math.floor(1000 + Math.random() * 9000)}`,
+        date: new Date().toLocaleDateString(),
+        scopes: [...feeState.scopes],
+        fee: money(feeState.totalFeeUsd),
+        hours: feeState.totalHours
+      });
+      persistLocalState();
+      showToast('Fee estimate saved to Client & Cloud Vault.');
+    }
+
+    function openProposalMemo() {
+      document.getElementById('proposalBody').innerHTML = `
+        <div class="border-b border-slate-300 pb-4 flex justify-between items-start">
+          <div><h3 class="text-xl font-extrabold text-obsidian">AURELIUS GLOBAL LLP</h3><p class="text-xs text-slate-500">Preliminary Statutory Assurance Scope &amp; ISA 320 Memorandum</p></div>
+          <span class="font-num text-xs font-bold">REF: AUR-2026-${Math.floor(1000 + Math.random() * 9000)}</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-alabaster p-4 border border-slate-200">
+          <div><span class="font-num text-[10px] text-slate-500 block">OVERALL MAT.</span><strong class="font-num text-obsidian">${money(feeState.overallMat)}</strong></div>
+          <div><span class="font-num text-[10px] text-slate-500 block">PERF. MAT.</span><strong class="font-num">${money(feeState.perfMat)}</strong></div>
+          <div><span class="font-num text-[10px] text-slate-500 block">EFFORT</span><strong class="font-num">${feeState.totalHours} Hrs (${feeState.weeks} Wks)</strong></div>
+          <div><span class="font-num text-[10px] text-slate-500 block">TOTAL FEE</span><strong class="font-num text-sovereign">${money(feeState.totalFeeUsd)}</strong></div>
+        </div>
+        <p class="text-xs text-slate-700"><strong>Included Workstreams:</strong> ${feeState.scopes.join(', ')}.</p>
+      `;
+      document.getElementById('proposalModal').classList.remove('hidden');
+    }
+
+    // ==================== 10. PRACTICES MATRIX & EDITORIAL MONOGRAPHS ====================
+    const PRACTICES = [
+      { id: 'srv-stat', pillar: 'audit', label: '01 / Audit & Assurance', title: 'Statutory Financial Audit', std: 'ISA 700 • IFRS • PCAOB', desc: 'Independent statutory financial statement audits backed by 100% general ledger population analytics and multi-jurisdiction consolidation.', cfg: [true, false, false, false] },
+      { id: 'srv-sox', pillar: 'audit', label: '01 / Audit & Assurance', title: 'SOX 404 & Internal Controls', std: 'SOX 404(b) • COSO', desc: 'End-to-end design evaluation, walkthroughs, and operating effectiveness testing for Internal Controls over Financial Reporting and ITGCs.', cfg: [true, true, false, false] },
+      { id: 'srv-esg', pillar: 'audit', label: '01 / Audit & Assurance', title: 'ESG & ISSA 5000 Assurance', std: 'ISSA 5000 • CSRD • BRSR', desc: 'Reasonable third-party assurance over Scope 1, 2, and 3 GHG emissions, carbon offset registries, and sustainability reports.', cfg: [false, false, true, false] },
+      { id: 'srv-tp', pillar: 'tax', label: '02 / Tax & Legal', title: 'Transfer Pricing & BEPS 2.0', std: 'OECD Pillar Two • IAS 12', desc: 'Global minimum tax provisioning, arm’s-length benchmarking, Master/Local File documentation, and Advance Pricing Agreements.', cfg: [false, false, false, true] },
+      { id: 'srv-gst', pillar: 'tax', label: '02 / Tax & Legal', title: 'Indirect Tax, GST & VAT', std: 'CGST/IGST • EU VAT', desc: 'Automated Input Tax Credit reconciliation, multi-jurisdiction indirect tax health checks, and customs valuation audits.', cfg: [true, false, false, false] },
+      { id: 'srv-ma', pillar: 'tax', label: '02 / Tax & Legal', title: 'Cross-Border M&A Structuring', std: 'Cross-Border Tax • IBC', desc: 'Tax-efficient acquisition structuring, buy-side tax due diligence, and post-merger entity rationalization.', cfg: [false, false, false, true] },
+      { id: 'srv-ai', pillar: 'advisory', label: '03 / Strategy & Risk', title: 'AI Governance & ISO 42001', std: 'ISO/IEC 42001 • EU AI Act', desc: 'Independent validation of enterprise LLM pipelines, automated ERP journal bots, model drift controls, and algorithmic fairness.', cfg: [false, true, false, false] },
+      { id: 'srv-forensic', pillar: 'advisory', label: '03 / Strategy & Risk', title: 'Forensic CAATs & Disputes', std: 'ISA 240 • FCPA', desc: 'Full-population journal entry forensics, Benford’s Law anomaly investigations, vendor conflict screening, and dispute quantification.', cfg: [true, false, false, false] },
+      { id: 'srv-deal', pillar: 'advisory', label: '03 / Strategy & Risk', title: 'Quality of Earnings & Valuation', std: 'IVS • Purchase Price', desc: 'Financial Quality of Earnings diligence, normalized EBITDA adjustments, Purchase Price Allocation, and impairment testing.', cfg: [true, false, false, false] }
+    ];
+
+    function renderPracticeCards(filter = 'all') {
+      const list = filter === 'all' ? PRACTICES : PRACTICES.filter(p => p.pillar === filter);
+      document.getElementById('practicesMatrixGrid').innerHTML = list.map(p => `
+        <div class="arch-card bg-white border border-slate-300 p-6 flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-center gap-2 mb-3">
+              <span class="font-num text-[10px] font-bold uppercase text-sovereign">${p.label}</span>
+              <span class="font-num text-[10px] text-slate-500">${p.std}</span>
+            </div>
+            <h3 class="text-lg font-extrabold text-obsidian mb-2">${p.title}</h3>
+            <p class="text-xs text-slate-600 leading-relaxed mb-5">${p.desc}</p>
+          </div>
+          <div class="pt-3 border-t border-slate-200 flex items-center justify-between">
+            <button onclick="configurePracticeFee('${p.id}')" class="bg-obsidian hover:bg-midnight text-white font-num text-[11px] font-bold px-3.5 py-2 transition">Price Scope →</button>
+            <button onclick="openRfpModal('${p.title}')" class="font-num text-xs font-bold text-sovereign hover:underline">Initiate RFP</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterPracticeCards(filter) {
+      document.querySelectorAll('.prac-filter').forEach(b => { b.classList.remove('bg-obsidian', 'text-white'); b.classList.add('text-slate-700'); });
+      const active = document.getElementById(`pracBtn${filter.charAt(0).toUpperCase() + filter.slice(1)}`);
+      if (active) { active.classList.add('bg-obsidian', 'text-white'); active.classList.remove('text-slate-700'); }
+      renderPracticeCards(filter);
+    }
+
+    function jumpToPractice(pillar, id) {
+      filterPracticeCards(pillar);
+      configurePracticeFee(id);
+    }
+
+    function configurePracticeFee(id) {
+      const p = PRACTICES.find(x => x.id === id);
+      if (!p) return;
+      document.getElementById('chkScopeStat').checked = p.cfg[0];
+      document.getElementById('chkScopeSox').checked = p.cfg[1];
+      document.getElementById('chkScopeEsg').checked = p.cfg[2];
+      document.getElementById('chkScopeTp').checked = p.cfg[3];
+      setEngineMode('calculator');
+      document.getElementById('assurance-engine').scrollIntoView({ behavior: 'smooth' });
+      showToast(`Loaded "${p.title}" into Fee & Materiality Calculator.`);
+    }
+
+    const MONOGRAPHS = [
+      { id: 'm1', domain: 'AI & Algorithmic Governance', title: '2026 Audit Quality & Autonomous ERP Governance Report', author: 'Dr. Kavita Subramanian, Global Assurance Partner', date: 'November 2026', read: '9 min read', excerpt: 'Establishing cryptographic audit trails and ISA 315 (Revised) automated control testing for autonomous general ledger bots.', takeaways: ['79% of surveyed enterprises deploy LLM or RPA bots in month-end close, yet only 31% maintain immutable audit logs.', 'ISO/IEC 42001 certification reduces algorithmic assurance testing effort by up to 28%.'], body: ['As autonomous reconciliation bots assume direct responsibility for sub-ledger postings, statutory audit committees require deterministic evidence trails aligned with ISA 315 (Revised).'] },
+      { id: 'm2', domain: 'Audit & Assurance', title: 'Recalibrating ISA 320 Materiality in High-Volatility Capital Markets', author: 'Vikramjit Sethi, National Technical Director', date: 'October 2026', read: '7 min read', excerpt: 'Multi-year earnings normalization, revenue-based benchmarks, and component materiality allocation across multinational groups.', takeaways: ['One-off impairment charges can artificially depress PBT unless normalized over a 3-year cycle.', 'Component materiality across subsidiaries must be capped below group Performance Materiality.'], body: ['Determining Planning Materiality under ISA 320 requires disciplined professional judgment rather than mechanical percentage rules.'] },
+      { id: 'm3', domain: 'International Tax', title: 'OECD Pillar Two (15% Global Minimum Tax): Year-One IAS 12 Readiness', author: 'Elena Rostova, Head of International Tax', date: 'October 2026', read: '8 min read', excerpt: 'Reconciling Qualified Domestic Minimum Top-up Taxes (QDMTT) with statutory financial statements and CbCR Safe Harbours.', takeaways: ['Transitional CbCR Safe Harbour reliance requires qualified financial statements audited under an acceptable accounting standard.', 'IAS 12 requires explicit disclosure of current tax expense attributable to Pillar Two top-up levies.'], body: ['Multinational groups operating across Europe, Asia-Pacific, and North America face binding 15% jurisdictional minimum tax calculations tied to audited consolidation packages.'] }
+    ];
+
+    function renderResearchGrid() {
+      const q = document.getElementById('researchSearchInput').value.toLowerCase().trim();
+      const dom = document.getElementById('researchTopicSelect').value;
+      const list = MONOGRAPHS.filter(m => (dom === 'All' || m.domain === dom) && (!q || m.title.toLowerCase().includes(q) || m.excerpt.toLowerCase().includes(q)));
+      document.getElementById('researchGrid').innerHTML = list.map(m => `
+        <article class="arch-card bg-white border border-slate-300 p-6 flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between font-num text-[10px] mb-3"><span class="font-bold uppercase text-sovereign">${m.domain}</span><span class="text-slate-500">${m.read}</span></div>
+            <h3 onclick="openMonograph('${m.id}')" class="font-editorial text-xl font-semibold text-obsidian leading-snug mb-3 hover:text-sovereign cursor-pointer">${m.title}</h3>
+            <p class="text-xs text-slate-600 leading-relaxed mb-5">${m.excerpt}</p>
+          </div>
+          <div class="pt-3 border-t border-slate-200 flex justify-between items-center text-xs">
+            <span class="text-slate-500">${m.date}</span>
+            <button onclick="openMonograph('${m.id}')" class="font-num font-bold text-obsidian hover:text-sovereign">Read Monograph →</button>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function openMonograph(id) {
+      const m = MONOGRAPHS.find(x => x.id === id);
+      if (!m) return;
+      document.getElementById('monoDomainTag').textContent = m.domain;
+      document.getElementById('monoTitleTag').textContent = m.title;
+      document.getElementById('monoAuthorTag').textContent = m.author;
+      document.getElementById('monoDateTag').textContent = m.date;
+      document.getElementById('monoReadTag').textContent = m.read;
+      document.getElementById('monoTakeaways').innerHTML = m.takeaways.map(t => `<li>${t}</li>`).join('');
+      document.getElementById('monoContent').innerHTML = m.body.map(p => `<p>${p}</p>`).join('');
+      document.getElementById('monographModal').classList.remove('hidden');
+    }
+
+    // ==================== 11. CLOUD DRAWER, KB, RFP & SEARCH ====================
+    function openCloudDrawer(tab = 'config') {
+      switchCloudDrawerTab(tab);
+      document.getElementById('cloudDrawer').classList.remove('hidden');
+    }
+
+    function switchCloudDrawerTab(tab) {
+      const isCfg = tab === 'config';
+      document.getElementById('cdPanelConfig').classList.toggle('hidden', !isCfg);
+      document.getElementById('cdPanelVault').classList.toggle('hidden', isCfg);
+      document.getElementById('cdTabConfig').className = isCfg ? 'py-3 text-center border-b-2 border-obsidian text-obsidian' : 'py-3 text-center text-slate-500';
+      document.getElementById('cdTabVault').className = !isCfg ? 'py-3 text-center border-b-2 border-obsidian text-obsidian' : 'py-3 text-center text-slate-500';
+      if (!isCfg) renderVaultContents();
+    }
+
+    function renderVaultContents() {
+      const files = Object.entries(workpapersMap);
+      document.getElementById('cdPanelVault').innerHTML = `
+        <div class="space-y-2">
+          <h4 class="font-num font-extrabold uppercase text-obsidian">Uploaded Working Papers (${files.length})</h4>
+          ${files.length === 0 ? `<p class="text-slate-500 bg-alabaster p-3 border border-slate-200">No working papers attached yet.</p>` : files.map(([k, v]) => `
+            <div class="border border-slate-200 p-3 flex justify-between items-center">
+              <div><strong class="block text-obsidian">${v.fileName}</strong><span class="font-num text-[10px] text-slate-500">${v.size} • ${v.isCloud ? 'Supabase Cloud' : 'Local Vault'}</span></div>
+              ${v.storageUrl ? `<a href="${v.storageUrl}" target="_blank" rel="noopener" class="font-num text-cobalt font-bold underline">Download</a>` : ''}
+            </div>
+          `).join('')}
+        </div>
+        <div class="space-y-2">
+          <h4 class="font-num font-extrabold uppercase text-obsidian">Submitted RFP Mandates (${savedRfps.length})</h4>
+          ${savedRfps.length === 0 ? `<p class="text-slate-500 bg-alabaster p-3 border border-slate-200">No RFPs submitted yet.</p>` : savedRfps.map(r => `
+            <div class="border-l-4 border-sovereignBright bg-alabaster p-3">
+              <strong class="font-num text-obsidian">${r.refId}</strong> — <strong>${r.orgName}</strong> (${r.service})
+              <div class="text-slate-600 mt-0.5">Fee: ${r.fee} • ${r.execName} (${r.execEmail})</div>
+            </div>
+          `).join('')}
+        </div>
+        <div class="space-y-2">
+          <h4 class="font-num font-extrabold uppercase text-obsidian">Saved Fee Estimates (${savedEstimates.length})</h4>
+          ${savedEstimates.length === 0 ? `<p class="text-slate-500 bg-alabaster p-3 border border-slate-200">No fee estimates saved yet.</p>` : savedEstimates.map(e => `
+            <div class="border border-slate-200 p-3 flex justify-between font-num">
+              <span><strong>${e.id}</strong> (${e.hours} Hrs)</span>
+              <strong class="text-obsidian">${e.fee}</strong>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function updateVaultBadge() {
+      const total = Object.keys(workpapersMap).length + savedRfps.length + savedEstimates.length;
+      document.getElementById('vaultCountBadge').textContent = total;
+    }
+
+    const KB_LIST = [
+      { code: 'ISA 210', title: 'Agreeing the Terms of Audit Engagements', desc: 'Establishes preconditions for an audit, management’s responsibility for internal controls, and mandatory Engagement Letter contents.' },
+      { code: 'IESBA Code', title: 'International Code of Ethics & Independence', desc: 'Governs auditor independence in mind and appearance, prohibited non-assurance services, and conflict clearance.' },
+      { code: 'ISA 320', title: 'Materiality in Planning and Performing an Audit', desc: 'Defines Overall Planning Materiality (e.g., 5% of PBT), Performance Materiality (65%–80%), and Clearly Trivial Thresholds (5%).' },
+      { code: 'SOX 404 / COSO', title: 'Internal Control Over Financial Reporting', desc: 'Evaluates design and operating effectiveness of preventive/detective controls and IT General Controls (ITGCs).' },
+      { code: 'ISA 240', title: 'Auditor’s Responsibilities Relating to Fraud', desc: 'Mandates testing of manual journal entries, weekend/off-hours postings, and management override risks.' },
+      { code: 'ISA 570', title: 'Going Concern Evaluation', desc: 'Requires assessment of liquidity ratios, debt covenants, and 12-month cash flow forecasts.' },
+      { code: 'ISA 700 & 701', title: 'Forming an Opinion & Key Audit Matters', desc: 'Governs the Independent Auditor’s Report and disclosure of significant audit focus areas.' }
+    ];
+
+    function openKbModal() {
+      document.getElementById('kbFilterInput').value = '';
+      renderKbStandards('');
+      document.getElementById('kbModal').classList.remove('hidden');
+    }
+
+    function renderKbStandards(q) {
+      const query = q.toLowerCase().trim();
+      const rows = KB_LIST.filter(s => !query || s.code.toLowerCase().includes(query) || s.title.toLowerCase().includes(query) || s.desc.toLowerCase().includes(query));
+      document.getElementById('kbListContainer').innerHTML = rows.map(s => `
+        <div class="pt-3 first:pt-0">
+          <div class="flex items-center gap-2"><span class="bg-obsidian text-amber-400 font-num text-[11px] font-bold px-2.5 py-0.5">${s.code}</span><h4 class="text-sm font-extrabold text-obsidian">${s.title}</h4></div>
+          <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">${s.desc}</p>
+        </div>
+      `).join('');
+    }
+
+    function openRfpModal(svc = null) {
+      const c = getActiveClient();
+      document.getElementById('rfpEntityInput').value = c.name;
+      document.getElementById('rfpFeeInput').value = `${money(feeState.totalFeeUsd)} (${feeState.totalHours} Hrs)`;
+      if (svc) {
+        const sel = document.getElementById('rfpServiceInput');
+        for (let i = 0; i < sel.options.length; i++) {
+          if (sel.options[i].value.toLowerCase().includes(svc.toLowerCase())) { sel.selectedIndex = i; break; }
+        }
+      }
+      document.getElementById('rfpFormInputs').classList.remove('hidden');
+      document.getElementById('rfpReceiptBox').classList.add('hidden');
+      goRfpStep(1);
+      document.getElementById('rfpModal').classList.remove('hidden');
+    }
+
+    function goRfpStep(n) {
+      if (n === 2 && !document.getElementById('rfpEntityInput').value.trim()) {
+        document.getElementById('rfpErrMsg1').classList.remove('hidden');
+        return;
+      }
+      document.getElementById('rfpErrMsg1').classList.add('hidden');
+      [1, 2, 3].forEach(i => {
+        document.getElementById(`rfpStep${i}`).classList.toggle('hidden', i !== n);
+        document.getElementById(`rfpTab${i}`).className = i === n ? 'py-2.5 text-center border-b-2 border-obsidian text-obsidian' : 'py-2.5 text-center text-slate-400';
+      });
+    }
+
+    async function submitEnterpriseRfp() {
+      const execName = document.getElementById('rfpExecNameInput').value.trim();
+      const execEmail = document.getElementById('rfpExecEmailInput').value.trim();
+      if (!execName || !execEmail.includes('@')) {
+        document.getElementById('rfpErrMsg3').classList.remove('hidden');
+        return;
+      }
+      document.getElementById('rfpErrMsg3').classList.add('hidden');
+
+      const refId = `AUR-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+      const orgName = document.getElementById('rfpEntityInput').value.trim();
+      const service = document.getElementById('rfpServiceInput').value;
+      const fee = document.getElementById('rfpFeeInput').value;
+
+      savedRfps.unshift({ refId, orgName, service, fee, execName, execEmail });
+      persistLocalState();
+
+      if (isCloudConnected && supabaseClient) {
+        try {
+          await supabaseClient.from('aurelius_rfps').upsert({
+            ref_id: refId,
+            org_name: orgName,
+            service_line: service,
+            fee_estimate: fee,
+            exec_name: execName,
+            exec_email: execEmail
+          });
+        } catch (e) { /* silent fallback */ }
+      }
+
+      document.getElementById('rfpReceiptSummary').innerHTML = `
+        <div><strong>Reference ID:</strong> ${refId}</div>
+        <div><strong>Entity:</strong> ${orgName}</div>
+        <div><strong>Practice Line:</strong> ${service}</div>
+        <div><strong>Fee Estimate:</strong> ${fee}</div>
+        <div><strong>Executive Contact:</strong> ${execName} (${execEmail})</div>
+      `;
+      document.getElementById('rfpFormInputs').classList.add('hidden');
+      document.getElementById('rfpReceiptBox').classList.remove('hidden');
+      showToast(isCloudConnected ? `RFP ${refId} synced to Supabase Cloud!` : `RFP ${refId} saved to Client Vault.`);
+    }
+
+    function openSearchModal() {
+      document.getElementById('searchModal').classList.remove('hidden');
+      const inp = document.getElementById('cmdSearchInput');
+      inp.value = '';
+      inp.focus();
+      runCmdSearch('');
+    }
+
+    document.addEventListener('keydown', e => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); openSearchModal(); }
+      else if (e.key === 'Escape') ['cloudDrawer', 'configModal', 'newEngagementModal', 'kbModal', 'searchModal', 'proposalModal', 'monographModal', 'rfpModal', 'disclosureModal'].forEach(closeModal);
+    });
+
+    function runCmdSearch(q) {
+      const query = q.toLowerCase().trim();
+      const hits = [];
+      AUDIT_STEPS.forEach(s => {
+        if (!query || s.code.toLowerCase().includes(query) || s.title.toLowerCase().includes(query) || s.std.toLowerCase().includes(query)) {
+          hits.push({ tag: `Phase ${s.num} • ${s.std}`, title: s.title, fn: `closeModal('searchModal'); jumpToStep(${s.num});` });
+        }
+      });
+      PRACTICES.forEach(p => {
+        if (!query || p.title.toLowerCase().includes(query)) {
+          hits.push({ tag: p.label, title: p.title, fn: `closeModal('searchModal'); configurePracticeFee('${p.id}');` });
+        }
+      });
+      document.getElementById('cmdSearchResults').innerHTML = hits.slice(0, 8).map(h => `
+        <button onclick="${h.fn}" class="w-full text-left p-3 hover:bg-alabaster flex justify-between items-center">
+          <div><span class="font-num text-[10px] font-bold uppercase text-sovereign block">${h.tag}</span><strong class="text-xs text-obsidian">${h.title}</strong></div>
+          <i class="fa-solid fa-arrow-right text-slate-400 text-xs"></i>
+        </button>
+      `).join('');
+    }
+
+    function openDisclosureModal(k) {
+      const d = {
+        quality: { t: '2026 Audit Quality & ISQM 1 Report', b: '<p>Aurelius Global LLP enforces an integrated System of Quality Management compliant with IAASB ISQM 1, achieving a 99.7% clean inspection pass rate.</p>' },
+        independence: { t: 'IESBA Independence & Conflict Clearance Policy', b: '<p>Strict partner rotation, financial interest screening, and prohibited non-assurance service controls apply across all member firms.</p>' },
+        privacy: { t: 'Client Confidentiality & Cloud Security', b: '<p>Client financial statements and working papers are stored encrypted in your Supabase Cloud project or isolated local browser vault.</p>' }
+      }[k];
+      document.getElementById('discTitle').textContent = d.t;
+      document.getElementById('discBody').innerHTML = d.b;
+      document.getElementById('disclosureModal').classList.remove('hidden');
+    }
+
+    function printTarget(elId) {
+      const src = document.getElementById(elId);
+      const dst = document.getElementById('printSurface');
+      if (!src || !dst) return;
+      dst.innerHTML = src.innerHTML;
+      dst.classList.remove('hidden');
+      window.print();
+      dst.classList.add('hidden');
+    }
+
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+    function toggleMobileNav() { document.getElementById('mobileNavDrawer').classList.toggle('hidden'); }
+
+    function showToast(msg, tone = 'info') {
+      const stack = document.getElementById('toastStack');
+      const div = document.createElement('div');
+      div.className = `pointer-events-auto bg-obsidian text-white text-xs font-medium px-4 py-3 shadow-2xl border-l-4 ${tone === 'warn' ? 'border-amber-400' : 'border-emerald-400'} flex items-center gap-3 max-w-sm transition-opacity duration-300`;
+      div.innerHTML = `<i class="fa-solid fa-circle-info text-amber-400"></i><span>${msg}</span>`;
+      stack.appendChild(div);
+      setTimeout(() => { div.style.opacity = '0'; setTimeout(() => div.remove(), 300); }, 3600);
+    }
+
+    // ==================== BOOTSTRAP ====================
+    window.addEventListener('DOMContentLoaded', () => {
+      renderHeroQuickClients();
+      renderPracticeCards('all');
+      renderResearchGrid();
+      computeAuditFee();
+      refreshLifecycleUI();
+      updateVaultBadge();
+      initSupabaseFromStorage();
+    });
+  </script>
+</body>
+</html>
